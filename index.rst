@@ -1147,7 +1147,7 @@ JSDoc タグリファレンス
 
    http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml?showone=Comments#Comments
 
-JSDoc での HMLT
+JSDoc での HTML
 --------------------------------------------------------------------------------
 JavaDoc のように JSDoc でも多くの HTML タグがサポートされています. 
 
@@ -1306,3 +1306,137 @@ Tips や トリック
        (isEnabled ? '' : ' disabled') +
        ' name="foo">';
 
+&& and ||
+========================================
+2項の boolean 演算子はショートサーキットで, 最後の項まで評価されます.
+
+``||`` は "デフォルト演算子" とも呼ばれます. 以下のコードは,
+
+.. code-block:: javascript
+
+   /** @param {*=} opt_win */
+   function foo(opt_win) {
+     var win;
+     if (opt_win) {
+       win = opt_win;
+     } else {
+       win = window;
+     }
+     // ...
+   }
+
+次のように書き換えられます.
+
+.. code-block:: javascript
+
+   /** @param {*=} opt_win */
+   function foo(opt_win) {
+     var win = opt_win || window;
+     // ...
+   }
+
+同様に ``&&`` 演算子を使うことでもコードを短縮できます. このようなコードの代わりに:
+
+.. code-block:: javascript
+
+   if (node) {
+     if (node.kids) {
+       if (node.kids[index]) {
+         foo(node.kids[index]);
+       }
+     }
+   }
+
+次のように書けます.
+
+.. code-block:: javascript
+
+   if (node && node.kids && node.kids[index]) {
+     foo(node.kids[index]);
+   }
+
+あるいは, 次のような書き方も可能です.
+
+.. code-block:: javascript
+
+   var kid = node && node.kids && node.kids[index];
+   if (kid) {
+     foo(kid);
+   }   
+
+しかしながら, この例はすこしやりすぎでしょう.
+
+.. code-block:: javascript
+
+   node && node.kids && node.kids[index] && foo(node.kids[index]);
+
+文字列の組み立てに join() を使う
+--------------------------------------------------------------------------------
+このようなコードはよく見かけられます:
+
+.. code-block:: javascript
+
+   function listHtml(items) {
+     var html = '<div class="foo">';
+     for (var i = 0; i < items.length; ++i) {
+       if (i > 0) {
+         html += ', ';
+       }
+       html += itemHtml(items[i]);
+     }
+     html += '</div>';
+     return html;
+   }
+
+しかしこの書き方は Internet Explorer では遅くなります. 次の書き方がベターです:
+
+.. code-block:: javascript
+
+   function listHtml(items) {
+     var html = [];
+     for (var i = 0; i < items.length; ++i) {
+       html[i] = itemHtml(items[i]);
+     }
+     return '<div class="foo">' + html.join(', ') + '</div>';
+   }
+   
+配列を stringbuilder として使い, ``myArray.join('')`` で文字列に変換することも可能です. また ``push()`` で配列の要素を追加するよりもインデックスを指定して追加する方が高速なので, そちらを用いるべきです.
+
+ノードリストのイテレート
+--------------------------------------------------------------------------------
+ノードリストは, よくノードのイテレータとフィルタから実装されています. よって, 例えばリストの長さを取得したい場合は O(n), またリストの要素を操作しそれぞれについて長さをチェックした場合は O(n^2) かかってしまいます.
+
+.. code-block:: javascript
+
+   var paragraphs = document.getElementsByTagName('p');
+   for (var i = 0; i < paragraphs.length; i++) {
+     doSomething(paragraphs[i]);
+   }
+
+代わりにこう書いたほうがベターです:
+
+.. code-block:: javascript
+
+   var paragraphs = document.getElementsByTagName('p');
+   for (var i = 0, paragraph; paragraph = paragraphs[i]; i++) {
+     doSomething(paragraph);
+   }
+   
+これはすべてのコレクション, 配列に対してうまく動きます. 要素がなくなるまでループし, 最後には false となりループが終了します.
+
+childNodes をたどる場合は, firstChild や nextSibling プロパティを使うことができます.
+
+.. code-block:: javascript
+
+   var parentNode = document.getElementById('foo');
+   for (var child = parentNode.firstChild; child; child = child.nextSibling) {
+     doSomething(child);
+   }
+
+あとがき
+========================================
+**一貫性をもたせてください**
+
+あなたがコードを書くとき, どのようなスタイルで書くかを決める前に, 少しまわりのコードを見るようにしてください. もし周りのコードが算術演算子の両端にスペースを入れていれば, あなたもそうすべきです. もしまわりのコードのコメントが, ハッシュマーク ``#`` を使って矩形を描いていたとしたら, あなたもまたそうすべきです.
+
+コーディングスタイルのガイドラインを策定することのポイントは, コーディングの共通の語彙をもって, *どう書くか* ではなく *何を書くか* に集中できるようにすることです. 私たちはここでグローバルなスタイルのルールを提供したので, 人々は共通の語彙を得られたことになります しかしローカルなスタイルもまた重要です. もしあなたが追加したコードがあまりにも周りのコードと違っていた場合, コードを読む人のリズムが乱されてしまいます. それは避けてください.
