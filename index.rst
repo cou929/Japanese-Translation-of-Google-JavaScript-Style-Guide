@@ -192,7 +192,7 @@ JavaScript は, 安全にセミコロンの存在が推測できる場合を除�
 ----------------------------------------
 ``Foo.prototype.bar = function() { ... };``
 
-メソッドやプロパティをコンストラクタに付与する方法はいくつかありますが, 次の方法を推奨します:
+メソッドやプロパティをコンストラクタに付与する方法はいくつかありますが, 次の方法を使用してください:
 
 .. code-block:: javascript
 
@@ -422,3 +422,538 @@ for-in ループ
 
 ``Object.prototype`` や ``Array.prototype`` などのビルトインオブジェクトのプロトタイプを変更することは厳密に禁じられています. ``Function.prototype`` などはそれに比べ比較的安全ですが, デバッグ時に問題を引き起こす可能性があるので, 変更は避けてください.
 
+JavaScript Style Rules
+========================================
+
+命名
+----------------------------------------
+基本的に次のように命名してください: ``functionNamesLikeThis, variableNamesLikeThis, ClassNamesLikeThis, EnumNamesLikeThis, methodNamesLikeThis, and SYMBOLIC_CONSTANTS_LIKE_THIS.``
+
+プロパティとメソッド
+****************************************
+
+- ``Private`` のプロパティ, 変数, メソッドには, 末尾にアンダースコア ``_`` を付けてください.
+- ``Protected`` のプロパティ, 変数, メソッドにはアンダースコアを付けないでください (パブリックなものと同様です).
+
+``Private`` と ``Protected`` に関しては visibility のセクションを参考にしてください.
+
+メソッドと関数パラメータ
+****************************************
+オプション引数には ``opt_`` というプレフィックスをつけてください.
+
+可変長の引数を取る場合, 最後の引数を ``var_args`` と名づけてください. ただし参照する際は ``var_args`` ではなく ``arguments`` を参照するようにしてください.
+
+オプション引数と可変長引数に関しては ``@param`` アノテーションでもコンパイラは正しく解釈してくれます. 両方を同時に用いることが好ましいです.
+
+getter と setter
+****************************************
+getter, setter は必須ではありません. もし使う場合は ``getFoo()``, ``setFoo(value)`` という名前にしてください. (boolean の getter の場合は ``isFoo()`` も許可されています. こちらのほうがより自然です.)
+
+名前空間
+****************************************
+JavaScript は階層的なパッケージングや名前空間をサポートしていません.
+
+グローバル名前衝突が起こるとデバッグは難しくなり, 2つのプロジェクトの統合も難しくなります. 名前の衝突を避け, 共有できる JavaScript コードをモジュール化するために, 以下のような規約を設けています.
+
+グローバルなコードには名前空間を使う
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+グローバルスコープに出すものには, プロジェクトやライブラリ名に関連したプレフィックスを常に付けてください. 例えば "Project Sloth" の場合, ``sloth.*`` という具合です.
+
+.. code-block:: javascript
+
+   var sloth = {};
+   
+   sloth.sleep = function() {
+     ...
+   };
+   
+`Closure Library <http://code.google.com/closure/library/>`_ や `Dojo toolkit <http://www.dojotoolkit.org/>`_ でも名前空間を定義する関数が提供されています. これらを使う場合は一貫性に注意してください.
+
+.. code-block:: javascript
+
+   goog.provide('sloth');
+   
+   sloth.sleep = function() {
+     ...
+   };
+
+名前空間のオーナーシップへの配慮
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+子の名前空間を作る場合は, 親の名前空間への連絡をしてください. sloth から hats というプロジェクトを始めた場合は, sloth チームに ``sloth.hats`` という名前を使用する旨を伝えてください.
+
+外部のコードと内部のコードで別の名前空間を使う
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"外部のコード (External code)" とはあなたのコードの外から読み込んだもので, 独立してコンパイルされたものです. 内部と外部のコードの名前空間は厳密に分けてください. もし ``foo.hats.*`` という外部ライブラリを使用した場合, 衝突の可能性があるので, 内部のコードでは ``foo.hats.*`` に何も定義してはいけません.
+
+.. code-block:: javascript
+   
+   foo.require('foo.hats');
+   
+   /**
+    * 間違い -- 絶対にこのようにはしないでください.
+    * @constructor
+    * @extend {foo.hats.RoundHat}
+    */
+   foo.hats.BowlerHat = function() {
+   };
+
+もし外部名前変数に新しい API を定義する必要がある場合は, 明示的に公開 API をエクスポート擦る必要があります. 一貫性とコンパイラの最適化のために, 内部のコードでは内部の API を内部の名前で呼ぶ必要があります. 
+
+.. code-block:: javascript
+
+   foo.provide('googleyhats.BowlerHat');
+   
+   foo.require('foo.hats');
+   
+   /**
+    * @constructor
+    * @extend {foo.hats.RoundHat}
+    */
+   googleyhats.BowlerHat = function() {
+     ...
+   };
+   
+   goog.exportSymbol('foo.hats.BowlerHat', googleyhats.BowlerHat);
+
+ファイル名
+****************************************
+ファイル名は case-sensitive なプラットフォームのために, 必ず小文字にしてください. サフィックスは ``.js`` に, 句読点は ``-``, ``_`` (``_`` よりも ``-`` を使用してください) 以外は使わないでください.
+
+カスタム toString() メソッド
+----------------------------------------
+副作用なしに, 必ず動作しないといけません.
+
+``toString()`` メソッドを定義して, 独自のオブジェクトがどのように文字列化されるかを定義できます. ただし以下の2点が必ず守られる必要があります.
+
+1. 必ず成功する
+2. 副作用がない
+
+これらが守られなかった場合, 簡単に問題が引き起こされてしまいます. 例えば ``toString()`` が ``assert`` を呼び出している場合, ``assert`` はオブジェクト名をアウトプットしようとするので, ``toString()`` が必要になります.
+
+初期化の延期
+----------------------------------------
+しても良い.
+
+必ずしも宣言時に変数の初期化ができるわけではないので, 初期化を延期することは認められています.
+
+明示的なスコープ
+----------------------------------------
+常に必要です.
+
+常に明示的なスコープを使用してください. ポータビリティが向上し, またクリアになります. 例えば ``window`` が content window でないアプリケーションもあるので, ``window`` に依存するようなコードは書かないでください.
+
+コードのフォーマット
+----------------------------------------
+基本的に ``C++ formatting rules <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Formatting>`_ に従います. 以下はそれに追加する項目です.
+
+波括弧
+********************************************************************************
+処理系によってセミコロンが暗黙で挿入されるのを防ぐために, かならず開き波括弧は改行せずに同じ行に書いてください.
+
+.. code-block:: javascript
+
+   if (something) {
+     // ...
+   } else {
+     // ...
+   }
+   
+配列・オブジェクトの初期化
+********************************************************************************
+一行に収まる場合は, 初期化を一行で行ってもかまいません.
+
+.. code-block:: javascript
+
+   var arr = [1, 2, 3];  // 括弧の前後に空白を入れないでください
+   var obj = {a: 1, b: 2, c: 3};  // 括弧の前後に空白を入れないでください
+
+複数行に渡る初期化の場合は, ふつうのブロック同様スペース2つのインデントを行ってください.
+
+.. code-block:: javascript
+
+   // オブジェクトの初期化
+   var inset = {
+     top: 10,
+     right: 20,
+     bottom: 15,
+     left: 12
+   };
+   
+   // 配列の初期化
+   this.rows_ = [
+     '*Slartibartfast* <fjordmaster@magrathea.com>',
+     '*Zaphod Beeblebrox* <theprez@universe.gov>',
+     '*Ford Prefect* <ford@theguide.com>',
+     '*Arthur Dent* <has.no.tea@gmail.com>',
+     '*Marvin the Paranoid Android* <marv@googlemail.com>',
+     'the.mice@magrathea.com'
+   ];
+   
+   // メソッドの引数としてのオブジェクト
+   goog.dom.createDom(goog.dom.TagName.DIV, {
+     id: 'foo',
+     className: 'some-css-class',
+     style: 'display:none'
+   }, 'Hello, world!');
+  
+identifer が長い場合, プロパティを整列させると問題を引き起こす場合があるので, 整列させないようにしてください.
+
+.. code-block:: javascript
+   
+   CORRECT_Object.prototype = {
+     a: 0,
+     b: 1,
+     lengthyName: 2
+   };
+   
+以下のようにはしないでください.
+
+.. code-block:: javascript
+   
+   WRONG_Object.prototype = {
+     a          : 0,
+     b          : 1,
+     lengthyName: 2
+   };
+
+関数の引数
+********************************************************************************
+可能ならば, すべての関数の引数は一行にしてください. もしそれでは80文字の制限を超えてしまう場合は, 読みやすい形で複数行にしてください. スペースの節約のために各行をできるだけ80文字に近づけるように書くか, あるいは可読性のためにひとつの引数に付き一行を割り当てます. インデントは空白4つにするか, 括弧にあわせてください. 以下に典型的な例を示します.
+
+.. code-block:: javascript
+
+   // 空白4つのインデント, 80文字近くまで並べる. とても長い関数名で, スペースが少ない場合.
+   goog.foo.bar.doThingThatIsVeryDifficultToExplain = function(
+       veryDescriptiveArgumentNumberOne, veryDescriptiveArgumentTwo,
+       tableModelEventHandlerProxy, artichokeDescriptorAdapterIterator) {
+     // ...
+   };
+   
+   // 空白4つのインデント, 1引数につき1行. とても長い関数名で各引数を強調したい場合
+   goog.foo.bar.doThingThatIsVeryDifficultToExplain = function(
+       veryDescriptiveArgumentNumberOne,
+       veryDescriptiveArgumentTwo,
+       tableModelEventHandlerProxy,
+       artichokeDescriptorAdapterIterator) {
+     // ...
+   };
+   
+   // 括弧に合わせたインデント, 80文字近くまで並べる. 引数を見やすくまとめて, スペースが少ない場合.
+   function foo(veryDescriptiveArgumentNumberOne, veryDescriptiveArgumentTwo,
+                tableModelEventHandlerProxy, artichokeDescriptorAdapterIterator) {
+     // ...
+   }
+   
+   // 括弧に合わせたインデント, 1引数につき1行. 引数を見やすくまとめて, 各引数を強調したい場合.
+   function bar(veryDescriptiveArgumentNumberOne,
+                veryDescriptiveArgumentTwo,
+                tableModelEventHandlerProxy,
+                artichokeDescriptorAdapterIterator) {
+     // ...
+   }
+
+無名関数を渡す
+********************************************************************************
+引数として無名関数を定義し渡すときは, 無名関数の中身は関数呼び出しの左端か文の左端から空白2つのインデントにします. 場合によってはコードが左に寄り過ぎてしまうので, ``function`` キーワードから空白2つではありません. 
+
+.. code-block:: javascript
+
+   var names = items.map(function(item) {
+                           return item.name;
+                         });
+   
+   prefix.something.reallyLongFunctionName('whatever', function(a1, a2) {
+     if (a1.equals(a2)) {
+       someOtherLongFunctionName(a1);
+     } else {
+       andNowForSomethingCompletelyDifferent(a2.parrot);
+     }
+   });
+   
+More Information
+********************************************************************************
+配列・オブジェクトの初期化と引数としての無名関数以外では, すべて文の左端に合わせるか, 左からスペース4つのインデントにします.
+
+.. code-block:: javascript
+
+   someWonderfulHtml = '' +
+                       getEvenMoreHtml(someReallyInterestingValues, moreValues,
+                                       evenMoreParams, 'a duck', true, 72,
+                                       slightlyMoreMonkeys(0xfff)) +
+                       '';
+   
+   thisIsAVeryLongVariableName =
+       hereIsAnEvenLongerOtherFunctionNameThatWillNotFitOnPrevLine();
+   
+   thisIsAVeryLongVariableName = 'expressionPartOne' + someMethodThatIsLong() +
+       thisIsAnEvenLongerOtherFunctionNameThatCannotBeIndentedMore();
+   
+   someValue = this.foo(
+       shortArg,
+       'Some really long string arg - this is a pretty common case, actually.',
+       shorty2,
+       this.bar());
+   
+   if (searchableCollection(allYourStuff).contains(theStuffYouWant) &&
+       !ambientNotification.isActive() && (client.isAmbientSupported() ||
+                                           client.alwaysTryAmbientAnyways()) {
+     ambientNotification.activate();
+   }
+   
+空白行
+********************************************************************************
+論理的に関連のある行をまとめるために空白行を使用してください.
+
+.. code-block:: javascript
+
+   doSomethingTo(x);
+   doSomethingElseTo(x);
+   andThen(x);
+   
+   nowDoSomethingWith(y);
+   
+   andNowWith(z);
+   
+2項・3項演算子
+********************************************************************************
+演算子は常に先行する行においてください. そうしないと暗黙のセミコロンの問題が発生します. 改行を入れる場合は上記のルールにのっとってインデントします.
+
+.. code-block:: javascript
+
+   var x = a ? b : c;  // 可能ならば1行に
+   
+   // 空白4つのインデント
+   var y = a ?
+       longButSimpleOperandB : longButSimpleOperandC;
+   
+   // 最初のオペランドに合わせたインデント
+   var z = a ?
+           moreComplicatedB :
+           moreComplicatedC;
+   
+丸括弧
+========================================
+必要なところだけで使います.
+
+構文上・ 意味上不可欠な場面以外では, 丸括弧を使わないようにします.
+
+単項演算子 (delete, typeof) や void に丸括弧を使用してはいけません. また return や throw, case, new などのあとにも付けません.
+
+文字列
+========================================
+``"`` よりも ``'`` を使ってください.
+
+ダブルクオートよりもシングルクオートを使ってください. そのほうが HTML を含む文字列を作る際に便利です.
+
+.. code-block:: javascript
+   var msg = 'This is some HTML';
+
+Visibility (private, protected 領域)
+========================================
+JSDoc の ``@private``, ``@protected`` アノテーションが推奨されます.
+
+クラス, 関数, プロパティの visibility レベルの指定に, JSDoc の ``@private``, ``@protected`` アノテーションを使うことが推奨されます.
+
+``@private`` なグローバル変数と関数は同じファイルのコードからのみアクセスできます.
+
+``@private`` なコンストラクタは, 同じファイルの同じインスタンスのメンバーからアクセスできます. また ``@private`` コンストラクタは同じファイルのパブリックな静的プロパティと ``instanceof`` 演算子からアクセスできます.
+
+グローバル変数・関数・コンストラクタは ``@protected`` にはなりません.
+
+.. code-block:: javascript
+
+   // File 1.
+   // AA_PrivateClass_ と AA_init_ はグローバルで同じファイルからなのでアクセスできる
+   
+   /**
+    * @private
+    * @constructor
+    */
+   AA_PrivateClass_ = function() {
+   };
+   
+   /** @private */
+   function AA_init_() {
+     return new AA_PrivateClass_();
+   }
+   
+   AA_init_();
+   
+``@private`` なプロパティは同じファイルのすべてのコードからアクセスできます. またそのプロパティがクラスに属していた場合, そのメソッドが含まれるクラスの静的メソッドとインスタンスメソッドからもアクセスできます.
+
+``@protected`` なプロパティは同じファイルのすべてのコードからアクセスできます. またそのプロパティを含むクラスの静的メソッドと, そのクラスのサブクラスからもアクセスできます.
+
+.. code-block:: javascript
+
+   // File 1.
+   
+   /** @constructor */
+     AA_PublicClass = function() {
+   };
+   
+   /** @private */
+   AA_PublicClass.staticPrivateProp_ = 1;
+   
+   /** @private */
+   AA_PublicClass.prototype.privateProp_ = 2;
+   
+   /** @protected */
+   AA_PublicClass.staticProtectedProp = 31;
+   
+   /** @protected */
+   AA_PublicClass.prototype.protectedProp = 4;
+   
+   // File 2.
+   
+   /**
+    * @return {number} The number of ducks we've arranged in a row.
+    */
+   AA_PublicClass.prototype.method = function() {
+     // これら2つのプロパティへの合法的なアクセス
+     return this.privateProp_ + AA_PublicClass.staticPrivateProp_;
+   };
+   
+   // File 3.
+   
+   /**
+    * @constructor
+    * @extends {AA_PublicClass}
+    */
+   AA_SubClass = function() {
+     // protected な静的プロパティへの合法的なアクセス
+     AA_PublicClass.staticProtectedProp = this.method();
+   };
+   goog.inherits(AA_SubClass, AA_PublicClass);
+   
+   /**
+    * @return {number} The number of ducks we've arranged in a row.
+    */
+   AA_SubClass.prototype.method = function() {
+     // protected なインスタンスプロパティへの合法的なアクセス
+     return this.protectedProp;
+   };
+
+JavaScript の型
+========================================
+コンパイラによって強制されます.
+
+JSDoc で型についてドキュメント化するときはできるだけ型を特定し正確にしてください. サポートしているのは `JS2 <http://wiki.ecmascript.org/doku.php?id=spec:spec>`_ と JS1.x の型です.
+
+JavaScript 型指定言語
+----------------------------------------
+JS2 のプロポーサルには JavaScript の型を指定するための言語が記述されています. この言語を使って JSDoc のドキュメントに関数パラメータや返り値の型を記述します.
+
+JS2 のプロポーサルの発展によって, 記法にも変化がありました. コンパイラは古い記法をサポートしていますがそれらは非推奨です.
+
+.. note:: 訳注
+
+   省略しました. 詳しくは原文にある表を参照してください. 後日補完します.
+
+   http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml?showone=JavaScript_Types#JavaScript_Types
+
+JavaScript の型
+----------------------------------------
+
+.. note:: 訳注
+
+   省略しました. 詳しくは原文にある表を参照してください. 後日補完します.
+
+   http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml?showone=JavaScript_Types#JavaScript_Types
+
+nullable vs オプション パラメータとプロパティ
+--------------------------------------------------------------------------------
+JavaScript は弱い型付けの言語なので, 関数の引数やクラスのプロパティの オプション引数, nullable (ヌルを取り得る), undefine の3つの違いについて知る必要があります.
+
+オブジェクトの型 (あるいは参照型) はデフォルトで nullable です. しかし関数の型はデフォルトで nullable ではありません. オブジェクトは文字列, 数字, 真偽値, undefine 以外のものか null として定義されます. 例として以下のコードを示します.
+
+.. code-block:: javascript
+
+   /**
+    * Some class, initialized with a value.
+    * @param {Object} value Some value.
+    * @constructor
+    */
+   function MyClass(value) {
+     /**
+      * Some value.
+      * @type {Object}
+      * @private
+      */
+     this.myValue_ = value;
+   }
+   
+このコードではコンパイラに ``myValue_`` プロパティはオブジェクトか null をとるように指定しています. もし ``myValue_`` が null を取りえなくする場合は次のようにします。
+
+.. code-block:: javascript
+
+   /**
+    * Some class, initialized with a non-null value.
+    * @param {!Object} value Some value.
+    * @constructor
+    */
+   function MyClass(value) {
+     /**
+      * Some value.
+      * @type {!Object}
+      * @private
+      */
+     this.myValue_ = value;
+   }
+   
+この場合, もし ``myClass`` が null で初期化されたとき, コンパイラがワーニングを出します.
+
+関数のオプションパラメータは実行時に undefined に成り得ます. よってそれらがクラスのプロパティとして使われる場合は, 以下のように定義する必要があります.
+
+.. code-block:: javascript
+
+   /**
+    * Some class, initialized with an optional value.
+    * @param {Object=} opt_value Some value (optional).
+    * @constructor
+    */
+   function MyClass(opt_value) {
+     /**
+      * Some value.
+      * @type {Object|undefined}
+      * @private
+      */
+     this.myValue_ = opt_value;
+   }
+
+この場合 ``myValue_`` はオブジェクト, null, undefined を取り得ます.
+
+ここで ``opt_value`` は ``{Object|undefined}`` ではなく ``{Object=}`` と定義されていることに注意してください. これはオプションのパラメータは定義上そもそも undefined に成りえるためです. 可読性のためわざわざ undefined を取りうることを明示する必要はありません.
+
+最後に, nullable と オプション引数 の指定は直行しています. よって以下の4つの宣言はすべて別の意味です.
+
+.. code-block:: javascript
+
+   /**
+    * 4つのうち2つは nullable, 2つはオプション
+    * @param {!Object} nonNull Mandatory (must not be undefined), must not be null.
+    * @param {Object} mayBeNull Mandatory (must not be undefined), may be null.
+    * @param {!Object=} opt_nonNull Optional (may be undefined), but if present,
+    *     must not be null!
+    * @param {Object=} opt_mayBeNull Optional (may be undefined), may be null.
+    */
+   function strangeButTrue(nonNull, mayBeNull, opt_nonNull, opt_mayBeNull) {
+     // ...
+   };
+   
+コメント
+========================================
+JSDoc を使用してください.
+
+ファイル, クラス, メソッドをドキュメンテーションするために `JSDoc <http://code.google.com/p/jsdoc-toolkit/>`_ のコメントを使用してください. インラインのコメントには ``//`` を使います. 加えて, `C++ style for comments <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Comments>`_ に基本的に従います. つまり以下のような内容を記述します.
+
+- コピーライトと作者情報
+- トップレベル (ファイルレベル) のコメント. このファイルに詳しくない読者を対象として, このファイルでは何をしているのかを説明します. (例えば, 主要なコードのパーツとそれらがどのように協調しているかを1パラグラフ程度で書きます)
+- 必要ならばクラス, 関数, 変数と実装のコメント
+- 対象ブラウザ
+- 固有の記法 (capitalization, punctuation, spelling)
+
+文章が断片的になることは避けて, 文の開始は大文字, 文の最後には句点を入れます.
+
+新人プログラマがあなたのコードをメンテナンスすることを想定して書いてください. そうすればきっとうまくいきます!
+
+コンパイラは JSDoc で書かれたコメントから情報を抜き出し, validation や不要なコードの削除, コードの圧縮などに使用します. よって JSDoc の正しい記法で記述してください.
