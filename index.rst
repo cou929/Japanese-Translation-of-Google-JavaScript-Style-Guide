@@ -544,7 +544,7 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
 
 コードのフォーマット
 ----------------------------------------
-基本的に ``C++ formatting rules <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Formatting>`_ に従います. 以下はそれに追加する項目です.
+基本的に `C++ formatting rules <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Formatting>`_ に従います. 以下はそれに追加する項目です.
 
 波括弧
 ********************************************************************************
@@ -746,6 +746,7 @@ More Information
 ダブルクオートよりもシングルクオートを使ってください. そのほうが HTML を含む文字列を作る際に便利です.
 
 .. code-block:: javascript
+
    var msg = 'This is some HTML';
 
 Visibility (private, protected 領域)
@@ -1164,6 +1165,7 @@ JavaDoc のように JSDoc でも多くの HTML タグがサポートされて�
 このコードは次のように表示されます
 
 .. code-block:: javascript
+
    Computes weight based on three factors: items sent items received items received 
 
 代わりに以下のように記述してください.
@@ -1190,6 +1192,7 @@ JavaDoc のように JSDoc でも多くの HTML タグがサポートされて�
 これは次のように表示されます.
 
 .. code-block:: javascript
+
    Changes tags to  tags.  
 
 さらに, プレインテキストのドキュメントも同様によく読まれます. あまり HTML 表記にこだわりすぎないでください.
@@ -1214,4 +1217,92 @@ JavaDoc のように JSDoc でも多くの HTML タグがサポートされて�
 
 Tips や トリック
 ========================================
+
+真偽値表現
+--------------------------------------------------------------------------------
+以下はすべて boolean 表現では false になります.
+
+- null
+- undefined
+- '' (空の文字列)
+- 0 (数字)
+
+以下は true になるので注意してください
+
+- '0' (文字列)
+- [] (空の配列)
+- {} (空のオブジェクト)
+
+以上より, 以下のようなコードの代わりに:
+
+.. code-block:: javascript
+
+   while (x != null) {
+
+以下のように短く書くことができます (ただし x は 0 や空文字列や false にならないと仮定しています). 
+
+.. code-block:: javascript
+
+   while (x) {
+
+もし文字列が null でも空でもないことをチェックしたいときは:
+
+.. code-block:: javascript
+
+   if (y != null && y != '') {
+
+こうではなく, 以下のようによりスマートに記述できます.
+
+.. code-block:: javascript
+
+   if (y) {
+
+ただし, boolean 表現には直感的でないものが多くあるので注意してください.
+
+.. code-block:: javascript
+
+      Boolean('0') == true
+      '0' != true
+      0 != null
+      0 == []
+      0 == false
+      Boolean(null) == false
+      null != true
+      null != false
+      Boolean(undefined) == false
+      undefined != true
+      undefined != false
+      Boolean([]) == true
+      [] != true
+      [] == false
+      Boolean({}) == true
+      {} != true
+      {} != false
+
+条件式と3項演算子
+--------------------------------------------------------------------------------
+このコードの代わりに:
+
+.. code-block:: javascript
+
+   if (val != 0) {
+     return foo();
+   } else {
+     return bar();
+   }
+   
+以下のように書けます.
+
+.. code-block:: javascript
+
+   return val ? foo() : bar();
+
+3項演算子は HTML を生成するときにも便利です.
+
+.. code-block:: javascript
+
+   var html = '<input type="checkbox"' +
+       (isChecked ? ' checked' : '') +
+       (isEnabled ? '' : ' disabled') +
+       ' name="foo">';
 
