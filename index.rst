@@ -7,7 +7,7 @@ Google JavaScript Style Guide 和訳
 
 この和訳について
 ====================
-この文章は `Google JavaScript Style Guide <http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml>`_ を和訳したものです. 内容の正確性は保証しません. ライセンスは原文と同じく `CC-By 3.0 <http://creativecommons.org/licenses/by/3.0/>`_ とします. フィードバックは Kosei Moriyama (`@cou929 <http://twitter.com/cou929>`_ または cou929 at gmail.com) までお願いします. この和訳のリポジトリは `こちら <http://github.com/cou929>`_
+この文章は `Google JavaScript Style Guide <http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml>`_ を和訳したものです. 内容の正確性は保証しません. ライセンスは原文と同じく `CC-By 3.0 <http://creativecommons.org/licenses/by/3.0/>`_ とします. フィードバックは Kosei Moriyama (`@cou929 <http://twitter.com/cou929>`_ または cou929 at gmail.com) までお願いします. この和訳のリポジトリは `こちら <http://github.com/cou929/Japanese-Translation-of-Google-JavaScript-Style-Guide>`_
 
 バージョン
 ========================================
@@ -957,3 +957,261 @@ JSDoc を使用してください.
 新人プログラマがあなたのコードをメンテナンスすることを想定して書いてください. そうすればきっとうまくいきます!
 
 コンパイラは JSDoc で書かれたコメントから情報を抜き出し, validation や不要なコードの削除, コードの圧縮などに使用します. よって JSDoc の正しい記法で記述してください.
+
+トップレベル・ファイルレベルコメント
+--------------------------------------------------------------------------------
+トップレベルコメントはそのコードに詳しくない読者を対象として, そのファイルが何をしているのかを説明するコメントです. ファイルの内容, 作者, コンパチビリティの情報などを記述します.
+
+.. code-block:: javascript
+
+   // Copyright 2009 Google Inc. All Rights Reserved.
+   
+   /**
+    * @fileoverview Description of file, its uses and information
+    * about its dependencies.
+    * @author user@google.com (Firstname Lastname)
+    */
+   
+クラスコメント
+--------------------------------------------------------------------------------
+クラスコメントには説明と使用方法を記述します. コンストラクタのパラメータについても記述します. もし他のクラスを継承している場合は ``@extends`` タグを使用します. インタフェースを実装している場合は ``@implements`` タグを使用します.
+
+.. code-block:: javascript
+
+   /**
+    * Class making something fun and easy.
+    * @param {string} arg1 An argument that makes this more interesting.
+    * @param {Array.<number>} arg2 List of numbers to be processed.
+    * @constructor
+    * @extends {goog.Disposable}
+    */
+   project.MyClass = function(arg1, arg2) {
+     // ...
+   };
+   goog.inherits(project.MyClass, goog.Disposable);
+   
+メソッド・関数コメント
+--------------------------------------------------------------------------------
+説明とパラメータについて記述します. フルセンテンスを書きます. 文は第三者が宣言している文体で書きます.
+
+.. code-block:: javascript
+
+   /**
+    * Converts text to some completely different text.
+    * @param {string} arg1 An argument that makes this more interesting.
+    * @return {string} Some return value.
+    */
+   project.MyClass.prototype.someMethod = function(arg1) {
+     // ...
+   };
+   
+   /**
+    * Operates on an instance of MyClass and returns something.
+    * @param {project.MyClass} obj Instance of MyClass which leads to a long
+    *     comment that needs to be wrapped to two lines.
+    * @return {boolean} Whether something occured.
+    */
+   function PR_someMethod(obj) {
+     // ...
+   }
+   
+パラメータのないシンプルな getter メソッドの場合は説明を省略できます.
+
+.. code-block:: javascript
+
+   /**
+    * @return {Element} The element for the component.
+    */
+   goog.ui.Component.prototype.getElement = function() {
+     return this.element_;
+   };
+   
+プロパティコメント
+--------------------------------------------------------------------------------
+プロパティにもコメントを付けると良いです.
+
+.. code-block:: javascript
+   
+   /**
+    * Maximum number of things per pane.
+    * @type {number}
+    */
+   project.MyClass.prototype.someProperty = 4;
+
+型キャストコメント
+--------------------------------------------------------------------------------
+型チェックがある文の型を正確に推論できない場合, 型キャストのコメントを付加して括弧でくくります. 括弧は必ず必要です. コメントと共に括弧でくくります.
+
+.. code-block:: javascript
+   
+   /** @type {number} */ (x)
+   (/** @type {number} */ x)
+   
+JSDoc のインデント
+--------------------------------------------------------------------------------
+``@param``, ``@return``, ``@supported``, ``@this``, ``@deprecated`` アノテーションが複数行に渡る場合, 空白4つのインデントを使います.
+
+.. code-block:: javascript
+
+   /**
+    * Illustrates line wrapping for long param/return descriptions.
+    * @param {string} foo This is a param with a description too long to fit in
+    *     one line.
+    * @return {number} This returns something that has a description too long to
+    *     fit in one line.
+    */
+   project.MyClass.prototype.method = function(foo) {
+     return 5;
+   };
+
+``@fileoverview`` のコメントはインデントしてはいけません.
+
+文章の左端でそろえる方法も可能ですが, 推奨されません. 変数名が変わったときに毎回対応する必要が出てくるためです.
+
+.. code-block:: javascript
+
+   /**
+    * This is NOT the preferred indentation method.
+    * @param {string} foo This is a param with a description too long to fit in
+    *                     one line.
+    * @return {number} This returns something that has a description too long to
+    *                  fit in one line.
+    */
+   project.MyClass.prototype.method = function(foo) {
+     return 5;
+   };
+   
+Enum
+--------------------------------------------------------------------------------
+.. code-block:: javascript
+
+   /**
+    * Enum for tri-state values.
+    * @enum {number}
+    */
+   project.TriState = {
+     TRUE: 1,
+     FALSE: -1,
+     MAYBE: 0
+   };
+   
+Enum は有効な型でもあるので, パラメータの型などで使用することができます.
+
+.. code-block:: javascript
+
+   /**
+    * Sets project state.
+    * @param {project.TriState} state New project state.
+    */
+   project.setState = function(state) {
+     // ...
+   };
+   
+Typedef
+--------------------------------------------------------------------------------
+型が複雑になることもあります. 例えばある要素を引数としてとる関数はこのようになります:
+
+.. code-block:: javascript
+
+   /**
+    * @Param {string} tagName
+    * @param {(string|Element|Text|Array.<Element>|Array.<Text>)} contents
+    * @return {Element}
+    */
+   goog.createElement = function(tagName, contents) {
+     ...
+   };
+   
+``@typedef`` タグで型を定義することができます.
+
+.. code-block:: javascript
+
+   /** @typedef {(string|Element|Text|Array.<Element>|Array.<Text>)} */
+   goog.ElementContent;
+   
+   /**
+   * @param {string} tagName
+   * @param {goog.ElementContent} contents
+   * @return {Element}
+   */
+   goog.createElement = function(tagName, contents) {
+   ...
+   };
+   
+JSDoc タグリファレンス
+--------------------------------------------------------------------------------
+.. note:: 訳注
+
+   省略しました. 詳しくは原文にある表を参照してください. 後日補完します.
+
+   http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml?showone=Comments#Comments
+
+JSDoc での HMLT
+--------------------------------------------------------------------------------
+JavaDoc のように JSDoc でも多くの HTML タグがサポートされています. 
+
+よってプレインテキスト上のフォーマットは考慮されなくなります. JSDoc では空白に頼ったフォーマットをしないでください.
+
+.. code-block:: javascript
+
+   /**
+    * Computes weight based on three factors:
+    *   items sent
+    *   items received
+    *   last timestamp
+    */
+   
+このコードは次のように表示されます
+
+.. code-block:: javascript
+   Computes weight based on three factors: items sent items received items received 
+
+代わりに以下のように記述してください.
+
+.. code-block:: javascript
+
+   /**
+    * Computes weight based on three factors:
+    * <ul>
+    * <li>items sent
+    * <li>items received
+    * <li>last timestamp
+    * </ul>
+    */
+   
+また, HTML として解釈できないようなタグを書かないでください.
+
+.. code-block:: javascript
+
+   /**
+    * Changes <b> tags to <span> tags.
+    */
+   
+これは次のように表示されます.
+
+.. code-block:: javascript
+   Changes tags to  tags.  
+
+さらに, プレインテキストのドキュメントも同様によく読まれます. あまり HTML 表記にこだわりすぎないでください.
+
+.. code-block:: javascript
+
+   /**
+    * Changes &lt;b&gt; tags to &lt;span&gt; tags.
+    */
+   
+わざわ少なり, 大なり記号がなくても読者には伝わるでしょう. 以下のように記述してください.
+
+.. code-block:: javascript
+
+   /**
+   * Changes 'b' tags to 'span' tags.
+   */
+   
+コンパイル
+========================================
+`Closure Compiler <http://code.google.com/closure/compiler/>`_ のような JavaScript コンパイラを使うことが推奨されています.
+
+Tips や トリック
+========================================
+
