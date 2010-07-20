@@ -211,7 +211,7 @@ JavaScript は, 安全にセミコロンの存在が推測できる場合を除�
 .. code-block:: javascript
 
    function foo(element, a, b) {
-     element.onclick = function() { /* uses a and b */ };
+     element.onclick = function() { /* 引数 a と b を使う */ };
    }
 
 上記の無名関数はそれらを使う・使わないにかかわらず ``element``, ``a``, ``b`` への参照をずっと保持しています. ``element`` はクロージャへの参照をもっているので, 循環が発生していて, gc が回収できなくなっています. この場合, コードは以下のような構造になっています:
@@ -223,7 +223,7 @@ JavaScript は, 安全にセミコロンの存在が推測できる場合を除�
    }
    
    function bar(a, b) {
-     return function() { /* uses a and b */ }
+     return function() { /* 引数 a と b を使う */ }
    }
 
 eval()
@@ -690,7 +690,7 @@ More Information
    
    someValue = this.foo(
        shortArg,
-       'Some really long string arg - this is a pretty common case, actually.',
+       '非常に長い文字列型の引数 - 実際にはこのようなケースはとてもよくあります.',
        shorty2,
        this.bar());
    
@@ -747,7 +747,7 @@ More Information
 
 .. code-block:: javascript
 
-   var msg = 'This is some HTML';
+   var msg = 'なんらかの HTML';
 
 Visibility (private, protected 領域)
 ----------------------------------------
@@ -807,7 +807,7 @@ JSDoc の ``@private``, ``@protected`` アノテーションが推奨されま�
    // File 2.
    
    /**
-    * @return {number} The number of ducks we've arranged in a row.
+    * @return {number} The number of ducks we've arranged in a row (一列にならべるアヒルの数).
     */
    AA_PublicClass.prototype.method = function() {
      // これら2つのプロパティへの合法的なアクセス
@@ -827,7 +827,7 @@ JSDoc の ``@private``, ``@protected`` アノテーションが推奨されま�
    goog.inherits(AA_SubClass, AA_PublicClass);
    
    /**
-    * @return {number} The number of ducks we've arranged in a row.
+    * @return {number} The number of ducks we've arranged in a row (一列にならべるアヒルの数).
     */
    AA_SubClass.prototype.method = function() {
      // protected なインスタンスプロパティへの合法的なアクセス
@@ -870,13 +870,13 @@ JavaScript は弱い型付けの言語なので, 関数の引数やクラスの�
 .. code-block:: javascript
 
    /**
-    * Some class, initialized with a value.
+    * コンストラクタの引数 value で初期化されるクラス.
     * @param {Object} value Some value.
     * @constructor
     */
    function MyClass(value) {
      /**
-      * Some value.
+      * 何らかの値.
       * @type {Object}
       * @private
       */
@@ -888,13 +888,13 @@ JavaScript は弱い型付けの言語なので, 関数の引数やクラスの�
 .. code-block:: javascript
 
    /**
-    * Some class, initialized with a non-null value.
+    * コンストラクタの引数 value (なんらかの null でない値) で初期化されるクラス.
     * @param {!Object} value Some value.
     * @constructor
     */
    function MyClass(value) {
      /**
-      * Some value.
+      * 何らかの値.
       * @type {!Object}
       * @private
       */
@@ -908,13 +908,13 @@ JavaScript は弱い型付けの言語なので, 関数の引数やクラスの�
 .. code-block:: javascript
 
    /**
-    * Some class, initialized with an optional value.
+    * コンストラクタの引数 value (オプション) で初期化されるクラス.
     * @param {Object=} opt_value Some value (optional).
     * @constructor
     */
    function MyClass(opt_value) {
      /**
-      * Some value.
+      * 何らかの値.
       * @type {Object|undefined}
       * @private
       */
@@ -968,8 +968,8 @@ JSDoc を使用してください.
    // Copyright 2009 Google Inc. All Rights Reserved.
    
    /**
-    * @fileoverview Description of file, its uses and information
-    * about its dependencies.
+    * @fileoverview ファイルの説明, 使用方法や
+    * 依存関係の情報など.
     * @author user@google.com (Firstname Lastname)
     */
    
@@ -980,7 +980,7 @@ JSDoc を使用してください.
 .. code-block:: javascript
 
    /**
-    * Class making something fun and easy.
+    * なんだか楽しいクラス.
     * @param {string} arg1 An argument that makes this more interesting.
     * @param {Array.<number>} arg2 List of numbers to be processed.
     * @constructor
@@ -998,7 +998,7 @@ JSDoc を使用してください.
 .. code-block:: javascript
 
    /**
-    * Converts text to some completely different text.
+    * テキストをなにか全く別のテキストに変換する
     * @param {string} arg1 An argument that makes this more interesting.
     * @return {string} Some return value.
     */
@@ -1007,7 +1007,7 @@ JSDoc を使用してください.
    };
    
    /**
-    * Operates on an instance of MyClass and returns something.
+    * MyClass のインスタンスを処理して何かを返す関数
     * @param {project.MyClass} obj Instance of MyClass which leads to a long
     *     comment that needs to be wrapped to two lines.
     * @return {boolean} Whether something occured.
@@ -1021,7 +1021,7 @@ JSDoc を使用してください.
 .. code-block:: javascript
 
    /**
-    * @return {Element} The element for the component.
+    * @return {Element} あるコンポーネントの要素.
     */
    goog.ui.Component.prototype.getElement = function() {
      return this.element_;
@@ -1034,7 +1034,7 @@ JSDoc を使用してください.
 .. code-block:: javascript
    
    /**
-    * Maximum number of things per pane.
+    * 1 pane ごとの最大数.
     * @type {number}
     */
    project.MyClass.prototype.someProperty = 4;
@@ -1055,11 +1055,11 @@ JSDoc のインデント
 .. code-block:: javascript
 
    /**
-    * Illustrates line wrapping for long param/return descriptions.
-    * @param {string} foo This is a param with a description too long to fit in
-    *     one line.
-    * @return {number} This returns something that has a description too long to
-    *     fit in one line.
+    * 説明文が長く, 複数行にまたがった場合の例.
+    * @param {string} これはとても説明文の長い引数の例です. 複数行にまたがる場合は空白4つ分の
+    *     インデントを入れてください.
+    * @return {number} これはとても説明文の長い返り値の例です. 複数行にまたがる場合は空白4つ分の
+    *     インデントを入れてください.
     */
    project.MyClass.prototype.method = function(foo) {
      return 5;
@@ -1072,11 +1072,11 @@ JSDoc のインデント
 .. code-block:: javascript
 
    /**
-    * This is NOT the preferred indentation method.
-    * @param {string} foo This is a param with a description too long to fit in
-    *                     one line.
-    * @return {number} This returns something that has a description too long to
-    *                  fit in one line.
+    * これらは推奨されないインデントの例です.
+    * @param {string} これはとても説明文の長い引数の例です. 複数行にまたがっていますが, 上の例のように
+    *                     4スペースのインデントではありません.
+    * @return {number} これはとても説明文の長い返り値の例です. 複数行にまたがっていますが, 4つの空白ではなく
+    *                  説明文の開始位置にあわせてインデントしています.
     */
    project.MyClass.prototype.method = function(foo) {
      return 5;
@@ -1087,7 +1087,7 @@ Enum
 .. code-block:: javascript
 
    /**
-    * Enum for tri-state values.
+    * 3つの状態を持つ Enum
     * @enum {number}
     */
    project.TriState = {
@@ -1101,7 +1101,7 @@ Enum は有効な型でもあるので, パラメータの型などで使用す�
 .. code-block:: javascript
 
    /**
-    * Sets project state.
+    * プロジェクトの状態をセットする関数
     * @param {project.TriState} state New project state.
     */
    project.setState = function(state) {
@@ -1156,7 +1156,7 @@ JavaDoc のように JSDoc でも多くの HTML タグがサポートされて�
 .. code-block:: javascript
 
    /**
-    * Computes weight based on three factors:
+    * 3つの要素から重みを計算する:
     *   items sent
     *   items received
     *   last timestamp
@@ -1166,14 +1166,14 @@ JavaDoc のように JSDoc でも多くの HTML タグがサポートされて�
 
 .. code-block:: javascript
 
-   Computes weight based on three factors: items sent items received items received 
+   3つの要素から重みを計算する: items sent items received items received 
 
 代わりに以下のように記述してください.
 
 .. code-block:: javascript
 
    /**
-    * Computes weight based on three factors:
+    * 3つの要素から重みを計算する:
     * <ul>
     * <li>items sent
     * <li>items received
@@ -1186,29 +1186,29 @@ JavaDoc のように JSDoc でも多くの HTML タグがサポートされて�
 .. code-block:: javascript
 
    /**
-    * Changes <b> tags to <span> tags.
+    * <b> タグを <span> タグへ変換する.
     */
    
 これは次のように表示されます.
 
 .. code-block:: javascript
 
-   Changes tags to  tags.  
+    タグを  タグへ変換する.  
 
 さらに, プレインテキストのドキュメントも同様によく読まれます. あまり HTML 表記にこだわりすぎないでください.
 
 .. code-block:: javascript
 
    /**
-    * Changes &lt;b&gt; tags to &lt;span&gt; tags.
+    * &lt;b&gt; タグを &lt;span&gt; タグへ変換する.
     */
    
-わざわ少なり, 大なり記号がなくても読者には伝わるでしょう. 以下のように記述してください.
+'少なり', '大なり' 記号をわざわざ書かなくても読者には伝わるでしょう. 以下のように記述してください.
 
 .. code-block:: javascript
 
    /**
-   * Changes 'b' tags to 'span' tags.
+   * 'b' タグを 'span' タグへ変換する.
    */
    
 コンパイル
@@ -1404,7 +1404,7 @@ Tips や トリック
 
 ノードリストのイテレート
 ********************************************************************************
-ノードリストは, よくノードのイテレータとフィルタから実装されています. よって, 例えばリストの長さを取得したい場合は O(n), またリストの要素を操作しそれぞれについて長さをチェックした場合は O(n^2) かかってしまいます.
+ノードリストの多くは, ノードのイテレータとフィルタから実装されています. よって, 例えばリストの長さを取得したい場合は O(n), またリストの要素を操作しそれぞれについて長さをチェックした場合は O(n^2) かかってしまいます.
 
 .. code-block:: javascript
 
