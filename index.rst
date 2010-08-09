@@ -1427,8 +1427,14 @@ Tips や トリック
    for (var i = 0, paragraph; paragraph = paragraphs[i]; i++) {
      doSomething(paragraph);
    }
-   
-これはすべてのコレクション, 配列に対してうまく動きます. 要素がなくなるまでループし, 最後には false となりループが終了します.
+
+これは, false として扱われる値を含まない, すべてのコレクションや配列に対して問題なく動作します.
+
+.. note:: 訳注
+
+   id:co-sche さんにご指摘いただき修正しました.
+
+   http://d.hatena.ne.jp/co-sche/20100729/1280409953
 
 childNodes をたどる場合は, firstChild や nextSibling プロパティを使うことができます.
 
