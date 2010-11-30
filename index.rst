@@ -13,7 +13,7 @@ Google JavaScript Style Guide 和訳
 
 バージョン
 ========================================
-Revision 2.3
+Revision 2.9
 
 著者
 ========================================
@@ -124,6 +124,24 @@ JavaScript は, 安全にセミコロンの存在が推測できる場合を除�
 使っても良い.
 
 ネストした関数は非常に便利です. 例えば, continuation を作り, ヘルパー関数を隠蔽する場合などです. 自由にネストした関数を使ってください.
+
+ブロックの中での関数宣言
+----------------------------------------
+してはいけない.
+
+.. code-block:: javascript
+
+   if (x) {
+     function foo() {}
+   }
+
+ブロック内での関数宣言は多くのスクリプトエンジンでサポートされていますが, これは ECMAScript で標準化されていません (`ECMA-262 <http://www.ecma-international.org/publications/standards/Ecma-262.htm>`_ の 13, 14 節を参照してください). よって各実装や将来の ECMAScript 標準との間での一貫性がとれなくなります. ECMAScript での関数宣言は, スクリプトのルート部分か関数内で許可されています. ブロック内では関数宣言の代わりに関数式を用いてください:
+
+.. code-block:: javascript
+
+   if (x) {
+     var foo = function() {}
+   }
 
 例外
 ----------------------------------------
@@ -430,6 +448,20 @@ for-in ループ
 
 ``Object.prototype`` や ``Array.prototype`` などのビルトインオブジェクトのプロトタイプを変更することは厳密に禁じられています. ``Function.prototype`` などはそれに比べ比較的安全ですが, デバッグ時に問題を引き起こす可能性があるので, 変更は避けてください.
 
+Internet Explorer の条件付きコメント
+--------------------------------------------------------------------------------
+使ってはいけない.
+
+次のように書かないでください.
+
+.. code-block:: javascript
+
+   var f = function () {
+     /*@cc_on if (@_jscript) { return 2* @*/  3; /*@ } @*/
+   };
+
+条件付きコメントはランタイムに JavaScript のシンタックスツリーを変更するので, 自動化されたツールの動作を妨げてしまいます.
+
 JavaScript Style Rules
 ========================================
 
@@ -522,6 +554,72 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
    };
    
    goog.exportSymbol('foo.hats.BowlerHat', googleyhats.BowlerHat);
+
+長い型名をエイリアスし可読性を向上させる
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+ローカルのエイリアスを使うことで長い型名の可読性を向上できる場合はそうしてください. エイリアスの名前は型名の最後の部分にしてください.
+
+.. code-block:: javascript
+
+   /**
+    * @constructor
+    */
+   some.long.namespace.MyClass = function() {
+   };
+   
+   /**
+    * @param {some.long.namespace.MyClass} a
+    */
+   some.long.namespace.MyClass.staticHelper = function(a) {
+   	  ...
+   };
+   
+   myapp.main = function() {
+   	var MyClass = some.long.namespace.MyClass;
+   	var staticHelper = some.long.namespace.MyClass.staticHelper;
+   	staticHelper(new MyClass());
+   };
+
+名前空間のエイリアスは作成しないでください.
+
+.. code-block:: javascript
+
+   // 訳注: 悪い例
+   myapp.main = function() {
+     var namespace = some.long.namespace;
+     namespace.MyClass.staticHelper(new namespace.MyClass());
+   };
+
+エイリアスした型のプロパティにはアクセスしないでください. ただし列挙型は除きます.
+
+.. code-block:: javascript
+
+   // 訳注: エイリアスからのプロパティアクセスが許可される例 (enumであるため)
+   /** @enum {string} */
+   some.long.namespace.Fruit = {
+     APPLE: 'a',
+     BANANA: 'b'
+   };
+   
+   myapp.main = function() {
+     var Fruit = some.long.namespace.Fruit;
+     switch (fruit) {
+       case Fruit.APPLE:
+         ...
+       case Fruit.BANANA:
+         ...
+     }
+   };
+
+.. code-block:: javascript
+
+   // 訳注: 悪い例
+   myapp.main = function() {
+     var MyClass = some.long.namespace.MyClass;
+     MyClass.staticHelper(null);
+   };
+
+グローバルスコープではエイリアスを使用しないでください. エイリアスは関数スコープの中でのみ使用可能です.
 
 ファイル名
 ****************************************
