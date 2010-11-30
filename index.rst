@@ -13,7 +13,7 @@ Google JavaScript Style Guide 和訳
 
 バージョン
 ========================================
-Revision 2.9
+Revision 2.11
 
 著者
 ========================================
@@ -802,7 +802,7 @@ More Information
    
    if (searchableCollection(allYourStuff).contains(theStuffYouWant) &&
        !ambientNotification.isActive() && (client.isAmbientSupported() ||
-                                           client.alwaysTryAmbientAnyways()) {
+                                           client.alwaysTryAmbientAnyways())) {
      ambientNotification.activate();
    }
    
