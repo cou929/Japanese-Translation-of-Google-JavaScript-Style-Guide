@@ -21,7 +21,7 @@ SUBJECT="Google JavaScript Style Guide updates"
 MAILTO="cou929@gmail.com"
 REVFILE="current_revision"
 KNOW_REV=0
-TMP=tmpfile
+TMP=tmpfile.$$
 
 if [ -e ${REVFILE} ]; then
     KNOW_REV=`cat ${REVFILE}`
@@ -37,7 +37,7 @@ if [ ${KNOW_REV} -ne ${CUR_REV} ]; then
     svn diff -r ${PREV_REV}:${CUR_REV} ${TARGET} > ${TMP}
 
     if [ -s ${TMP} ]; then
-        cat ${TMP} | mail -s ${SUBJECT} ${MAILTO}
+        cat ${TMP} | mail -s "${SUBJECT}" ${MAILTO}
     fi 
 
     rm -f ${TMP}
