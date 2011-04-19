@@ -13,7 +13,7 @@ Google JavaScript Style Guide 和訳
 
 バージョン
 ========================================
-Revision 2.11
+Revision 2.20
 
 著者
 ========================================
@@ -375,6 +375,17 @@ for-in ループ
                    just gravy.  Have a nice day.';
 
 各行の先頭の空白はコンパイラによって安全に取り除かれますが, スラッシュの後の空白によってトリッキーなエラーが発生する可能性があります. また多くの JavaScript エンジンはこの記法をサポートしていますが, これは ECMAScript 標準ではありません.
+
+このような場合は, 次のように文字列を結合させます.
+
+.. code-block:: javascript
+
+   var myString = 'A rather long string of English text, an error message ' +
+       'actually that just keeps going and going -- an error ' +
+       'message to make the Energizer bunny blush (right through ' +
+       'those Schwarzenegger shades)! Where was I? Oh yes, ' +
+       'you\'ve got an error and all the extraneous whitespace is ' +
+       'just gravy.  Have a nice day.';
 
 .. note:: 訳注
 
@@ -758,16 +769,25 @@ identifer が長い場合, プロパティを整列させると問題を引き�
      // ...
    }
 
-無名関数を渡す
-********************************************************************************
-引数として無名関数を定義し渡すときは, 無名関数の中身は関数呼び出しの左端か文の左端から空白2つのインデントにします. 場合によってはコードが左に寄り過ぎてしまうので, ``function`` キーワードから空白2つではありません. 
+関数呼び出しそのものがインデントされている場合は, オリジナルの文のはじめからスペース4つ分のインデントをあけ引数を記述, 関数呼び出しのはじめからスペース4つ分のインデントをあけ引数を記述, のどちらでもかまいません. 以下はすべて正しいインデント方法です.
 
 .. code-block:: javascript
 
-   var names = items.map(function(item) {
-                           return item.name;
-                         });
-   
+   if (veryLongFunctionNameA(
+           veryLongArgumentName) ||
+       veryLongFunctionNameB(
+       veryLongArgumentName)) {
+     veryLongFunctionNameC(veryLongFunctionNameD(
+         veryLongFunctioNameE(
+             veryLongFunctionNameF)));
+   }
+
+無名関数を渡す場合
+********************************************************************************
+関数の引数として無名関数を定義し渡すとき, 無名関数の中身はその分の左端からスペース2つか, あるいは ``function`` キーワードの左端からスペース2つのインデントを入れます. これは引数の無名関数の可読性を高めるためのルールです (例えばコードが右側に寄りすぎてしまうのを防ぎます).
+
+.. code-block:: javascript
+
    prefix.something.reallyLongFunctionName('whatever', function(a1, a2) {
      if (a1.equals(a2)) {
        someOtherLongFunctionName(a1);
@@ -775,6 +795,12 @@ identifer が長い場合, プロパティを整列させると問題を引き�
        andNowForSomethingCompletelyDifferent(a2.parrot);
      }
    });
+   
+   var names = prefix.something.myExcellentMapFunction(
+       verboselyNamedCollectionOfItems,
+       function(item) {
+         return item.name;
+       });
    
 More Information
 ********************************************************************************
@@ -860,6 +886,8 @@ Visibility (private, protected 領域)
 JSDoc の ``@private``, ``@protected`` アノテーションが推奨されます.
 
 クラス, 関数, プロパティの visibility レベルの指定に, JSDoc の ``@private``, ``@protected`` アノテーションを使うことが推奨されます.
+
+コンパイル時に ``--jscomp_warning=visibility`` フラグを付けることで, visibility の侵害があった場合コンパイラが警告を出してくれるようにできます. 詳しくは `Closure Compiler Warnings <http://code.google.com/p/closure-compiler/wiki/Warnings>`_ を参照してください.
 
 ``@private`` なグローバル変数と関数は同じファイルのコードからのみアクセスできます.
 
@@ -1101,7 +1129,7 @@ JSDoc を使用してください.
    
 メソッド・関数コメント
 ********************************************************************************
-説明とパラメータについて記述します. フルセンテンスを書きます. 文は第三者が宣言している文体で書きます.
+パラメータの説明を必ず記述します. それが適切・必要な場合はフルセンテンスで記述します. メソッドの説明文は, 第三者が宣言している文体で書きます.
 
 .. code-block:: javascript
 
@@ -1246,6 +1274,26 @@ Typedef
    goog.createElement = function(tagName, contents) {
    ...
    };
+
+テンプレート型
+********************************************************************************
+コンパイラはテンプレート型を不完全にしかサポートできていません. コンパイラは無名関数の中の ``this`` の型については, ``this`` 引数の型とそれの有無からしか推論できません.
+
+.. code-block:: javascript
+
+   /**
+    * @param {function(this:T, ...)} fn
+    * @param {T} thisObj
+    * @param {...*} var_args
+    * @template T
+    */
+   goog.bind = function(fn, thisObj, var_args) {
+   ...
+   };
+   // プロパティが無いという警告を出すことができる例
+   goog.bind(function() { this.someProperty; }, new SomeClass());
+   // undefined this という警告を出す例
+   goog.bind(function() { this.someProperty; });
    
 JSDoc タグリファレンス
 ********************************************************************************
