@@ -16,10 +16,11 @@
 #    (ex. check repo everyday
 #    0 0 * * * /path/to/repo_monitor.sh
 
+WORK_DIR=/usr/local/share/google-styleguide-read-only/
 TARGET="javascriptguide.xml"
 SUBJECT="Google JavaScript Style Guide updates"
 MAILTO="cou929@gmail.com"
-REVFILE="current_revision"
+REVFILE=${WORK_DIR}"current_revision"
 KNOW_REV=0
 TMP=tmpfile.$$
 
@@ -27,6 +28,7 @@ if [ -e ${REVFILE} ]; then
     KNOW_REV=`cat ${REVFILE}`
 fi
 
+cd ${WORK_DIR}
 svn up
 CUR_REV=`svn up | perl -ple 's/At revision ([0-9]+)\./$1/'`
 PREV_REV=`expr ${CUR_REV} - 1`
