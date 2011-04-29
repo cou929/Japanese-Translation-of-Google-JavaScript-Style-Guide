@@ -1,7 +1,7 @@
 var express = require('express'),
     exec = require('child_process').exec,
     port = 1232,
-    command = '/usr/local/share/google_javascript_style_guide/synchronizer//doc_builder.sh',
+    command = '/usr/local/share/google_javascript_style_guide/synchronizer/doc_builder.sh >> a 2>&1',
     child;
 
 var app = express.createServer(
