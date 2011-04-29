@@ -10,6 +10,7 @@ And [document is here](http://cou929.nu/data/google_javascript_style_guide/)
 How To Setup
 ---------------------------------------------------------------------
 
+<pre>
    $ sudo git clone git://github.com/cou929/Japanese-Translation-of-Google-JavaScript-Style-Guide.git /usr/local/share/google_javascript_style_guide
    $ sudo chmod -R <user name> /usr/local/share/google_javascript_style_guide
    $ crontab -e
@@ -21,6 +22,7 @@ How To Setup
 And set below url on github's Post-Receive URLs form:
 
 > http://cou929.nu:1232/github/postreceive/
+</pre>
 
 Files
 ---------------------------------------------------------------------
