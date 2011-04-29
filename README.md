@@ -19,7 +19,7 @@ $ crontab -e
    
      0 0 * * * /usr/local/share/google_javascript_style_guide/monitor/repo_monitor.sh 2>> /usr/local/share/google_javascript_style_guide/monitor/error.log
  
-$ nohup node /usr/local/share/google_javascript_style_guide/synchonizer/post_receive_server.js
+$ nohup node /usr/local/share/google_javascript_style_guide/synchonizer/post_receive_server.js &
 </pre>
 
 And set below url on github's Post-Receive URLs form:
