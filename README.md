@@ -52,4 +52,4 @@ Dependencies
 Author
 ---------------------------------------------------------------------
 
-Kosei Moriyama <cou929@gmail.com>
+Kosei Moriyama \<[cou929@gmail.com](mailto:cou929@gmail.com)\>
