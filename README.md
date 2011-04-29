@@ -13,6 +13,8 @@ How To Setup
 <pre>
 $ sudo git clone git://github.com/cou929/Japanese-Translation-of-Google-JavaScript-Style-Guide.git /usr/local/share/google_javascript_style_guide
 $ sudo chmod -R <user name> /usr/local/share/google_javascript_style_guide
+$ cd monitor
+$ svn checkout http://google-styleguide.googlecode.com/svn/trunk/ google-styleguide-read-only
 $ crontab -e
    
      0 0 * * * /usr/local/share/google_javascript_style_guide/monitor/repo_monitor.sh 2>> /usr/local/share/google_javascript_style_guide/monitor/error.log
