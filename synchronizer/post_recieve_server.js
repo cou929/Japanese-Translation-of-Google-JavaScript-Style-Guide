@@ -21,4 +21,18 @@ app.post('/github/postreceive', function(req, res) {
     }
 });
 
+app.post('/bitbucket/renoir-js', function(req, res) {
+    var body = JSON.parse(req.body.payload);
+    if (body.repository.name === 'renoir_js') {
+        child = exec(command,
+                     function (error, stdout, stderr) {
+                         console.log('stdout: ' + stdout);
+                         console.log('stderr: ' + stderr);
+                         if (error !== null) {
+                             console.log('exec error: ' + error);
+                         }
+                     });
+    }
+});
+
 app.listen(port);
