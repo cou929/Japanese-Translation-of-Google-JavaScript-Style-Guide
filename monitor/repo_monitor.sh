@@ -14,7 +14,7 @@
 #    (ex. check repo everyday
 #    0 0 * * * /path/to/repo_monitor.sh
 
-WORK_DIR=`pwd`
+WORK_DIR=/usr/local/share/google_javascript_style_guide/monitor
 REPO_DIR="${WORK_DIR}/google-styleguide-read-only"
 TARGET="javascriptguide.xml"
 SUBJECT="Google JavaScript Style Guide updates"
@@ -23,14 +23,12 @@ REVFILE="${WORK_DIR}/current_revision"
 KNOW_REV=0
 TMP=tmpfile.$$
 
-echo ${REVFILE}
-
 if [ -e ${REVFILE} ]; then
     KNOW_REV=`cat ${REVFILE}`
 fi
 
 cd ${REPO_DIR}
-svn up
+svn up > /dev/null
 CUR_REV=`svn up | perl -ple 's/At revision ([0-9]+)\./$1/'`
 PREV_REV=`expr ${CUR_REV} - 1`
 
