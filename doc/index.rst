@@ -13,7 +13,7 @@ Google JavaScript Style Guide 和訳
 
 バージョン
 ========================================
-Revision 2.20
+Revision 2.28
 
 著者
 ========================================
@@ -498,7 +498,19 @@ JavaScript Style Rules
 
 getter と setter
 ****************************************
-getter, setter は必須ではありません. もし使う場合は ``getFoo()``, ``setFoo(value)`` という名前にしてください. (boolean の getter の場合は ``isFoo()`` も許可されています. こちらのほうがより自然です.)
+ECMAScript 5 ではプロパティへの getter/setter の使用が推奨されていません. やむを得なく使用する場合は, 観測できる状態を変更しないようにする必要があります.
+
+.. code-block:: javascript
+
+   /**
+    * 間違い -- このようにはしないでください
+    */
+   var foo = { get next() { return this.nextId++; } };
+   };
+
+アクセサ関数
+****************************************
+getter, setter は必須ではありません. もし使う場合は ``getFoo()``, ``setFoo(value)`` という名前にしてください. (boolean の getter の場合は ``isFoo()`` も許可されています. こちら のほうがより自然です.)
 
 名前空間
 ****************************************
@@ -970,6 +982,8 @@ JSDoc の ``@private``, ``@protected`` アノテーションが推奨されま�
      return this.protectedProp;
    };
 
+注意点として, JavaScript には (例えば ``AA_PrivateClass_`` のような) 型と, 型のコンストラクタとの間に区別がありません. public な型と private なコンストラクタを説明する方法がありません (何故ならば privacy check を行なっても簡単にコンストラクタが呼び出せてしまうためです).
+
 JavaScript の型
 ----------------------------------------
 コンパイラによって強制されます.
@@ -996,6 +1010,15 @@ JavaScript の型
    省略しました. 詳しくは原文にある表を参照してください. 後日補完します.
 
    http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml?showone=JavaScript_Types#JavaScript_Types
+
+型キャスト
+********************************************************************************
+ある文の型を正確に推論できない場合, 型キャストのコメントを付加して括弧でくくり付加することができます. 括弧は必ず必要です. コメントと共に括弧でくくります.
+
+.. code-block:: javascript
+
+   /** @type {number} */ (x)
+   (/** @type {number} */ x)
 
 nullable vs オプション パラメータとプロパティ
 ********************************************************************************
@@ -1076,174 +1099,7 @@ JavaScript は弱い型付けの言語なので, 関数の引数やクラスの�
    function strangeButTrue(nonNull, mayBeNull, opt_nonNull, opt_mayBeNull) {
      // ...
    };
-   
-コメント
-----------------------------------------
-JSDoc を使用してください.
 
-ファイル, クラス, メソッドをドキュメンテーションするために `JSDoc <http://code.google.com/p/jsdoc-toolkit/>`_ のコメントを使用してください. インラインのコメントには ``//`` を使います. 加えて, `C++ style for comments <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Comments>`_ に基本的に従います. つまり以下のような内容を記述します.
-
-- コピーライトと作者情報
-- トップレベル (ファイルレベル) のコメント. このファイルに詳しくない読者を対象として, このファイルでは何をしているのかを説明します. (例えば, 主要なコードのパーツとそれらがどのように協調しているかを1パラグラフ程度で書きます)
-- 必要ならばクラス, 関数, 変数と実装のコメント
-- 対象ブラウザ
-- 固有の記法 (capitalization, punctuation, spelling)
-
-文章が断片的になることは避けて, 文の開始は大文字, 文の最後には句点を入れます.
-
-新人プログラマがあなたのコードをメンテナンスすることを想定して書いてください. そうすればきっとうまくいきます!
-
-コンパイラは JSDoc で書かれたコメントから情報を抜き出し, validation や不要なコードの削除, コードの圧縮などに使用します. よって JSDoc の正しい記法で記述してください.
-
-トップレベル・ファイルレベルコメント
-********************************************************************************
-トップレベルコメントはそのコードに詳しくない読者を対象として, そのファイルが何をしているのかを説明するコメントです. ファイルの内容, 作者, コンパチビリティの情報などを記述します.
-
-.. code-block:: javascript
-
-   // Copyright 2009 Google Inc. All Rights Reserved.
-   
-   /**
-    * @fileoverview ファイルの説明, 使用方法や
-    * 依存関係の情報など.
-    * @author user@google.com (Firstname Lastname)
-    */
-   
-クラスコメント
-********************************************************************************
-クラスコメントには説明と使用方法を記述します. コンストラクタのパラメータについても記述します. もし他のクラスを継承している場合は ``@extends`` タグを使用します. インタフェースを実装している場合は ``@implements`` タグを使用します.
-
-.. code-block:: javascript
-
-   /**
-    * なんだか楽しいクラス.
-    * @param {string} arg1 An argument that makes this more interesting.
-    * @param {Array.<number>} arg2 List of numbers to be processed.
-    * @constructor
-    * @extends {goog.Disposable}
-    */
-   project.MyClass = function(arg1, arg2) {
-     // ...
-   };
-   goog.inherits(project.MyClass, goog.Disposable);
-   
-メソッド・関数コメント
-********************************************************************************
-パラメータの説明を必ず記述します. それが適切・必要な場合はフルセンテンスで記述します. メソッドの説明文は, 第三者が宣言している文体で書きます.
-
-.. code-block:: javascript
-
-   /**
-    * テキストをなにか全く別のテキストに変換する
-    * @param {string} arg1 An argument that makes this more interesting.
-    * @return {string} Some return value.
-    */
-   project.MyClass.prototype.someMethod = function(arg1) {
-     // ...
-   };
-   
-   /**
-    * MyClass のインスタンスを処理して何かを返す関数
-    * @param {project.MyClass} obj Instance of MyClass which leads to a long
-    *     comment that needs to be wrapped to two lines.
-    * @return {boolean} Whether something occured.
-    */
-   function PR_someMethod(obj) {
-     // ...
-   }
-   
-パラメータのないシンプルな getter メソッドの場合は説明を省略できます.
-
-.. code-block:: javascript
-
-   /**
-    * @return {Element} あるコンポーネントの要素.
-    */
-   goog.ui.Component.prototype.getElement = function() {
-     return this.element_;
-   };
-   
-プロパティコメント
-********************************************************************************
-プロパティにもコメントを付けると良いです.
-
-.. code-block:: javascript
-   
-   /**
-    * 1 pane ごとの最大数.
-    * @type {number}
-    */
-   project.MyClass.prototype.someProperty = 4;
-
-型キャストコメント
-********************************************************************************
-型チェックがある文の型を正確に推論できない場合, 型キャストのコメントを付加して括弧でくくります. 括弧は必ず必要です. コメントと共に括弧でくくります.
-
-.. code-block:: javascript
-   
-   /** @type {number} */ (x)
-   (/** @type {number} */ x)
-   
-JSDoc のインデント
-********************************************************************************
-``@param``, ``@return``, ``@supported``, ``@this``, ``@deprecated`` アノテーションが複数行に渡る場合, 空白4つのインデントを使います.
-
-.. code-block:: javascript
-
-   /**
-    * 説明文が長く, 複数行にまたがった場合の例.
-    * @param {string} これはとても説明文の長い引数の例です. 複数行にまたがる場合は空白4つ分の
-    *     インデントを入れてください.
-    * @return {number} これはとても説明文の長い返り値の例です. 複数行にまたがる場合は空白4つ分の
-    *     インデントを入れてください.
-    */
-   project.MyClass.prototype.method = function(foo) {
-     return 5;
-   };
-
-``@fileoverview`` のコメントはインデントしてはいけません.
-
-文章の左端でそろえる方法も可能ですが, 推奨されません. 変数名が変わったときに毎回対応する必要が出てくるためです.
-
-.. code-block:: javascript
-
-   /**
-    * これらは推奨されないインデントの例です.
-    * @param {string} これはとても説明文の長い引数の例です. 複数行にまたがっていますが, 上の例のように
-    *                     4スペースのインデントではありません.
-    * @return {number} これはとても説明文の長い返り値の例です. 複数行にまたがっていますが, 4つの空白ではなく
-    *                  説明文の開始位置にあわせてインデントしています.
-    */
-   project.MyClass.prototype.method = function(foo) {
-     return 5;
-   };
-   
-Enum
-********************************************************************************
-.. code-block:: javascript
-
-   /**
-    * 3つの状態を持つ Enum
-    * @enum {number}
-    */
-   project.TriState = {
-     TRUE: 1,
-     FALSE: -1,
-     MAYBE: 0
-   };
-   
-Enum は有効な型でもあるので, パラメータの型などで使用することができます.
-
-.. code-block:: javascript
-
-   /**
-    * プロジェクトの状態をセットする関数
-    * @param {project.TriState} state New project state.
-    */
-   project.setState = function(state) {
-     // ...
-   };
-   
 Typedef
 ********************************************************************************
 型が複雑になることもあります. 例えばある要素を引数としてとる関数はこのようになります:
@@ -1294,18 +1150,68 @@ Typedef
    goog.bind(function() { this.someProperty; }, new SomeClass());
    // undefined this という警告を出す例
    goog.bind(function() { this.someProperty; });
-   
-JSDoc タグリファレンス
+
+コメント
+----------------------------------------
+JSDoc を使用してください.
+
+`C++ style for comments <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Comments>`_ に基本的に従います. 
+
+すべてのファイル, クラス, メソッド, プロパティを `JSDoc <http://code.google.com/p/jsdoc-toolkit/>`_ コメントでドキュメンテーションしてください.
+
+インラインコメントには ``//`` を使用してください.
+
+文章が断片的になることは避けてください. 文頭では適切に語頭を大文字にし, 文末には句点を入れます.
+
+コメントの構文
 ********************************************************************************
-.. note:: 訳注
+JSDoc の構文は `JavaDoc <http://www.oracle.com/technetwork/java/javase/documentation/index-137868.html>`_ をベースにしています. 多くのツールは JSDoc のコメントからメタ情報を抽出し, コードのバリデーションや最適化を行います. 次は正しいフォーマットのコメントの例です.
 
-   省略しました. 詳しくは原文にある表を参照してください. 後日補完します.
+.. code-block:: javascript
 
-   http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml?showone=Comments#Comments
+   /**
+    * JSDoc のコメントはスラッシュと 2 つのアスタリスクで始めます.
+    * インラインタグは次のように波括弧で囲みます: {@code this}.
+    * @desc のように, ブロックタグは常に新しい行から始めます.
+    */
+
+JSDoc のインデント
+********************************************************************************
+ブロックタグの内容が複数行になる場合, コードと同様に扱い, 空白 4 つ分のインデントにします.
+
+.. code-block:: javascript
+
+   /**
+    * 説明文が長く, 複数行にまたがった場合の例.
+    * @param {string} これはとても説明文の長い引数の例です. 複数行にまたがる場合は空白4つ分の
+    *     インデントを入れてください.
+    * @return {number} これはとても説明文の長い返り値の例です. 複数行にまたがる場合は空白4つ分の
+    *     インデントを入れてください.
+    */
+   project.MyClass.prototype.method = function(foo) {
+     return 5;
+   };
+
+``@fileoverview`` のコメントはインデントしてはいけません.
+
+文章の左端でそろえる方法も可能ですが, 推奨されません. 変数名が変わったときに毎回対応する必要が出てくるためです.
+
+.. code-block:: javascript
+
+   /**
+    * これらは推奨されないインデントの例です.
+    * @param {string} これはとても説明文の長い引数の例です. 複数行にまたがっていますが, 上の例のように
+    *                     4スペースのインデントではありません.
+    * @return {number} これはとても説明文の長い返り値の例です. 複数行にまたがっていますが, 4つの空白ではなく
+    *                  説明文の開始位置にあわせてインデントしています.
+    */
+   project.MyClass.prototype.method = function(foo) {
+     return 5;
+   };
 
 JSDoc での HTML
 ********************************************************************************
-JavaDoc のように JSDoc でも多くの HTML タグがサポートされています. 
+JavaDoc のように JSDoc でも ``<code>``, ``<pre>``, ``<tt>``, ``<strong>``, ``<ul>``, ``<ol>``, ``<li>``, ``<a>`` などの HTML タグがサポートされています. 
 
 よってプレインテキスト上のフォーマットは考慮されなくなります. JSDoc では空白に頼ったフォーマットをしないでください.
 
@@ -1336,37 +1242,84 @@ JavaDoc のように JSDoc でも多くの HTML タグがサポートされて�
     * <li>last timestamp
     * </ul>
     */
-   
-また, HTML として解釈できないようなタグを書かないでください.
+
+より詳細は `JavaDoc <http://www.oracle.com/technetwork/java/javase/documentation/index-137868.html>`_ を参照してください.
+
+トップレベル・ファイルレベルコメント
+********************************************************************************
+トップレベルコメントはそのコードに詳しくない読者を対象として, そのファイルが何をしているのかを説明するコメントです. ファイルの内容, 作者, コンパチビリティの情報などを記述します.
 
 .. code-block:: javascript
 
+   // Copyright 2009 Google Inc. All Rights Reserved.
+   
    /**
-    * <b> タグを <span> タグへ変換する.
+    * @fileoverview ファイルの説明, 使用方法や
+    * 依存関係の情報など.
+    * @author user@google.com (Firstname Lastname)
     */
    
-これは次のように表示されます.
-
-.. code-block:: javascript
-
-    タグを  タグへ変換する.  
-
-さらに, プレインテキストのドキュメントも同様によく読まれます. あまり HTML 表記にこだわりすぎないでください.
+クラスコメント
+********************************************************************************
+クラスコメントには説明と型情報を記述します.
 
 .. code-block:: javascript
 
    /**
-    * &lt;b&gt; タグを &lt;span&gt; タグへ変換する.
+    * Class making something fun and easy.
+    * @param {string} arg1 An argument that makes this more interesting.
+    * @param {Array.<number>} arg2 List of numbers to be processed.
+    * @constructor
+    * @extends {goog.Disposable}
     */
-   
-'少なり', '大なり' 記号をわざわざ書かなくても読者には伝わるでしょう. 以下のように記述してください.
+   project.MyClass = function(arg1, arg2) {
+     // ...
+   };
+   goog.inherits(project.MyClass, goog.Disposable);
+
+メソッド・関数コメント
+********************************************************************************
+パラメータの説明を必ず記述します. メソッドの説明文は, 第三者が宣言している文体で書きます.
 
 .. code-block:: javascript
 
    /**
-   * 'b' タグを 'span' タグへ変換する.
-   */
+    * MyClass のインスタンスを処理して何かを返す関数
+    * @param {project.MyClass} obj Instance of MyClass which leads to a long
+    *     comment that needs to be wrapped to two lines.
+    * @return {boolean} Whether something occured.
+    */
+   function PR_someMethod(obj) {
+     // ...
+   }
    
+パラメータのないシンプルな getter メソッドの場合は説明を省略できます.
+
+プロパティコメント
+********************************************************************************
+
+.. code-block:: javascript
+   
+   /**
+    * 1 pane ごとの最大数.
+    * @type {number}
+    */
+   project.MyClass.prototype.someProperty = 4;
+
+JSDoc タグリファレンス
+********************************************************************************
+.. note:: 訳注
+
+   省略しました. 詳しくは原文にある表を参照してください. 後日補完します.
+
+   http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml?showone=Comments#Comments
+
+インラークラスと Enum
+----------------------------------------
+トップレベルクラスと同じファイルに定義します.
+
+別のクラスに定義されるインナークラスと enum はトップレベルクラスと同じファイルに定義して下さい. ``goog.provide`` 宣言はトップレベルクラスにのみ必要です.
+
 コンパイル
 ----------------------------------------
 `Closure Compiler <http://code.google.com/closure/compiler/>`_ のような JavaScript コンパイラを使うことが推奨されています.
