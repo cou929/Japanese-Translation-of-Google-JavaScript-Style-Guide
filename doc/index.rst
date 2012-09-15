@@ -81,6 +81,7 @@ var
 
 .. code-block:: javascript
 
+   __badcode__
    // 1.
    MyClass.prototype.myMethod = function() {
      return 42;
@@ -131,6 +132,7 @@ JavaScript は, 安全にセミコロンの存在が推測できる場合を除�
 
 .. code-block:: javascript
 
+   __badcode__
    if (x) {
      function foo() {}
    }
@@ -174,6 +176,7 @@ JavaScript は, 安全にセミコロンの存在が推測できる場合を除�
 
 .. code-block:: javascript
 
+   __badcode__
    var x = new Boolean(false);
    if (x) {
      alert('hi');  // 'hi' がアラートされる.
@@ -203,7 +206,7 @@ JavaScript は, 安全にセミコロンの存在が推測できる場合を除�
 よって同様のことを実現したい場合は, `Closure Library <http://code.google.com/closure/library/>`_ の ``goog.inherits()`` を使うべきです.
 
 .. code-block:: javascript
-   
+
    function D() {
      goog.base(this)
    }
@@ -235,6 +238,7 @@ JavaScript は, 安全にセミコロンの存在が推測できる場合を除�
 
 .. code-block:: javascript
 
+   __badcode__
    function foo(element, a, b) {
      element.onclick = function() { /* 引数 a と b を使う */ };
    }
@@ -301,6 +305,7 @@ with() {}
 
 .. code-block:: javascript
 
+   __badcode__
    with (foo) {
      var x = 3;
      return x;
@@ -327,6 +332,7 @@ for-in ループ
 
 .. code-block:: javascript
 
+   __badcode__
    function printArray(arr) {
      for (var key in arr) {
        print(arr[key]);
@@ -372,6 +378,7 @@ for-in ループ
 
 .. code-block:: javascript
 
+   __badcode__
    var myString = 'A rather long string of English text, an error message \
                    actually that just keeps going and going -- an error \
                    message to make the Energizer bunny blush (right through \
@@ -407,7 +414,8 @@ for-in ループ
 ``Array`` コンストラクタはその引数の取り方のせいでエラーを引き起こしがちです.
 
 .. code-block:: javascript
-   
+
+   __badcode__
    // 長さは 3.
    var a1 = new Array(x1, x2, x3);
    
@@ -437,6 +445,7 @@ for-in ループ
 
 .. code-block:: javascript
 
+   __badcode__
    var o = new Object();
    
    var o2 = new Object();
@@ -472,6 +481,7 @@ Internet Explorer の条件付きコメント
 
 .. code-block:: javascript
 
+   __badcode__
    var f = function () {
      /*@cc_on if (@_jscript) { return 2* @*/  3; /*@ } @*/
    };
@@ -507,6 +517,7 @@ ECMAScript 5 ではプロパティへの getter/setter の使用が推奨され�
 
 .. code-block:: javascript
 
+   __badcode__
    /**
     * 間違い -- このようにはしないでください
     */
@@ -534,7 +545,7 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
    sloth.sleep = function() {
      ...
    };
-   
+
 `Closure Library <http://code.google.com/closure/library/>`_ や `Dojo toolkit <http://www.dojotoolkit.org/>`_ でも名前空間を定義する関数が提供されています. これらを使う場合は一貫性に注意してください.
 
 .. code-block:: javascript
@@ -554,7 +565,8 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
 "外部のコード (External code)" とはあなたのコードの外から読み込んだもので, 独立してコンパイルされたものです. 内部と外部のコードの名前空間は厳密に分けてください. もし ``foo.hats.*`` という外部ライブラリを使用した場合, 衝突の可能性があるので, 内部のコードでは ``foo.hats.*`` に何も定義してはいけません.
 
 .. code-block:: javascript
-   
+
+   __badcode__
    foo.require('foo.hats');
    
    /**
@@ -565,7 +577,7 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
    foo.hats.BowlerHat = function() {
    };
 
-もし外部名前変数に新しい API を定義する必要がある場合は, 明示的に公開 API をエクスポートする必要があります. 一貫性とコンパイラの最適化のために, 内部のコードでは内部の API を内部の名前で呼ぶ必要があります. 
+もし外部名前変数に新しい API を定義する必要がある場合は, 明示的に公開 API をエクスポートする必要があります. 一貫性とコンパイラの最適化のために, 内部のコードでは内部の API を内部の名前で呼ぶ必要があります.
 
 .. code-block:: javascript
 
@@ -599,20 +611,20 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
     * @param {some.long.namespace.MyClass} a
     */
    some.long.namespace.MyClass.staticHelper = function(a) {
-   	  ...
+     ...
    };
    
    myapp.main = function() {
-   	var MyClass = some.long.namespace.MyClass;
-   	var staticHelper = some.long.namespace.MyClass.staticHelper;
-   	staticHelper(new MyClass());
+     var MyClass = some.long.namespace.MyClass;
+     var staticHelper = some.long.namespace.MyClass.staticHelper;
+     staticHelper(new MyClass());
    };
 
 名前空間のエイリアスは作成しないでください.
 
 .. code-block:: javascript
 
-   // 訳注: 悪い例
+   __badcode__
    myapp.main = function() {
      var namespace = some.long.namespace;
      namespace.MyClass.staticHelper(new namespace.MyClass());
@@ -641,7 +653,7 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
 
 .. code-block:: javascript
 
-   // 訳注: 悪い例
+   __badcode__
    myapp.main = function() {
      var MyClass = some.long.namespace.MyClass;
      MyClass.staticHelper(null);
@@ -691,7 +703,7 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
    } else {
      // ...
    }
-   
+
 配列・オブジェクトの初期化
 ********************************************************************************
 一行に収まる場合は, 初期化を一行で行ってもかまいません.
@@ -743,7 +755,8 @@ identifer が長い場合, プロパティを整列させると問題を引き�
 以下のようにはしないでください.
 
 .. code-block:: javascript
-   
+
+   __badcode__
    WRONG_Object.prototype = {
      a          : 0,
      b          : 1,
@@ -818,7 +831,7 @@ identifer が長い場合, プロパティを整列させると問題を引き�
        function(item) {
          return item.name;
        });
-   
+
 More Information
 ********************************************************************************
 配列・オブジェクトの初期化と引数としての無名関数以外では, すべて文の左端に合わせるか, 左からスペース4つのインデントにします.
@@ -848,7 +861,7 @@ More Information
                                            client.alwaysTryAmbientAnyways())) {
      ambientNotification.activate();
    }
-   
+
 空白行
 ********************************************************************************
 論理的に関連のある行をまとめるために空白行を使用してください.
@@ -862,7 +875,7 @@ More Information
    nowDoSomethingWith(y);
    
    andNowWith(z);
-   
+
 2項・3項演算子
 ********************************************************************************
 演算子は常に先行する行においてください. そうしないと暗黙のセミコロンの問題が発生します. 改行を入れる場合は上記のルールにのっとってインデントします.
@@ -879,7 +892,7 @@ More Information
    var z = a ?
            moreComplicatedB :
            moreComplicatedC;
-   
+
 丸括弧
 ----------------------------------------
 必要なところだけで使います.
@@ -930,7 +943,7 @@ JSDoc の ``@private``, ``@protected`` アノテーションが推奨されま�
    }
    
    AA_init_();
-   
+
 ``@private`` なプロパティは同じファイルのすべてのコードにアクセスできます. 加えて, そのプロパティがクラスに属していた場合, そのプロパティが含まれるクラスの静的メソッドとインスタンスメソッドにもアクセスできます. ただし, 別ファイルのサブクラスからアクセスしたり, オーバーライドすることはできません.
 
 ``@protected`` なプロパティは同じファイルのすべてのコードにアクセスできます. 加えて, そのプロパティを含むクラスのサブクラスの, 静的メソッドとインスタンスメソッドにもアクセスできます.
@@ -1046,7 +1059,7 @@ JavaScript は弱い型付けの言語なので, 関数の引数やクラスの�
       */
      this.myValue_ = value;
    }
-   
+
 このコードではコンパイラに ``myValue_`` プロパティはオブジェクトか null をとるように指定しています. もし ``myValue_`` が null を取りえなくする場合は次のようにします。
 
 .. code-block:: javascript
@@ -1064,7 +1077,7 @@ JavaScript は弱い型付けの言語なので, 関数の引数やクラスの�
       */
      this.myValue_ = value;
    }
-   
+
 この場合, もし ``myClass`` が null で初期化されたとき, コンパイラがワーニングを出します.
 
 関数のオプションパラメータは実行時に undefined に成り得ます. よってそれらがクラスのプロパティとして使われる場合は, 以下のように定義する必要があります.
@@ -1119,7 +1132,7 @@ Typedef
    goog.createElement = function(tagName, contents) {
      ...
    };
-   
+
 ``@typedef`` タグで型を定義することができます.
 
 .. code-block:: javascript
@@ -1160,7 +1173,7 @@ Typedef
 ----------------------------------------
 JSDoc を使用してください.
 
-`C++ style for comments <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Comments>`_ に基本的に従います. 
+`C++ style for comments <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Comments>`_ に基本的に従います.
 
 すべてのファイル, クラス, メソッド, プロパティを `JSDoc <http://code.google.com/p/jsdoc-toolkit/>`_ コメントでドキュメンテーションしてください.
 
@@ -1216,24 +1229,26 @@ JSDoc のインデント
 
 JSDoc での HTML
 ********************************************************************************
-JavaDoc のように JSDoc でも ``<code>``, ``<pre>``, ``<tt>``, ``<strong>``, ``<ul>``, ``<ol>``, ``<li>``, ``<a>`` などの HTML タグがサポートされています. 
+JavaDoc のように JSDoc でも ``<code>``, ``<pre>``, ``<tt>``, ``<strong>``, ``<ul>``, ``<ol>``, ``<li>``, ``<a>`` などの HTML タグがサポートされています.
 
 よってプレインテキスト上のフォーマットは考慮されなくなります. JSDoc では空白に頼ったフォーマットをしないでください.
 
 .. code-block:: javascript
 
+   __badcode__
    /**
     * 3つの要素から重みを計算する:
     *   items sent
     *   items received
     *   last timestamp
     */
-   
+
 このコードは次のように表示されます
 
 .. code-block:: javascript
 
-   3つの要素から重みを計算する: items sent items received items received 
+   __badcode__
+   3つの要素から重みを計算する: items sent items received items received
 
 代わりに以下のように記述してください.
 
@@ -1263,7 +1278,7 @@ JavaDoc のように JSDoc でも ``<code>``, ``<pre>``, ``<tt>``, ``<strong>``,
     * 依存関係の情報など.
     * @author user@google.com (Firstname Lastname)
     */
-   
+
 クラスコメント
 ********************************************************************************
 クラスコメントには説明と型情報を記述します.
@@ -1297,14 +1312,14 @@ JavaDoc のように JSDoc でも ``<code>``, ``<pre>``, ``<tt>``, ``<strong>``,
    function PR_someMethod(obj) {
      // ...
    }
-   
+
 パラメータのないシンプルな getter メソッドの場合は説明を省略できます.
 
 プロパティコメント
 ********************************************************************************
 
 .. code-block:: javascript
-   
+
    /**
     * 1 pane ごとの最大数.
     * @type {number}
@@ -1351,9 +1366,10 @@ Tips や トリック
 
 .. code-block:: javascript
 
+   __badcode__
    while (x != null) {
 
-以下のように短く書くことができます (ただし x は 0 や空文字列や false にならないと仮定しています). 
+以下のように短く書くことができます (ただし x は 0 や空文字列や false にならないと仮定しています).
 
 .. code-block:: javascript
 
@@ -1363,6 +1379,7 @@ Tips や トリック
 
 .. code-block:: javascript
 
+   __badcode__
    if (y != null && y != '') {
 
 こうではなく, 以下のようによりスマートに記述できます.
@@ -1404,7 +1421,7 @@ Tips や トリック
    } else {
      return bar();
    }
-   
+
 以下のように書けます.
 
 .. code-block:: javascript
@@ -1428,6 +1445,7 @@ Tips や トリック
 
 .. code-block:: javascript
 
+   __badcode__
    /** @param {*=} opt_win */
    function foo(opt_win) {
      var win;
@@ -1453,6 +1471,7 @@ Tips や トリック
 
 .. code-block:: javascript
 
+   __badcode__
    if (node) {
      if (node.kids) {
        if (node.kids[index]) {
@@ -1476,12 +1495,13 @@ Tips や トリック
    var kid = node && node.kids && node.kids[index];
    if (kid) {
      foo(kid);
-   }   
+   }
 
 しかしながら, この例はすこしやりすぎでしょう.
 
 .. code-block:: javascript
 
+   __badcode__
    node && node.kids && node.kids[index] && foo(node.kids[index]);
 
 文字列の組み立てに join() を使う
@@ -1490,6 +1510,7 @@ Tips や トリック
 
 .. code-block:: javascript
 
+   __badcode__
    function listHtml(items) {
      var html = '<div class="foo">';
      for (var i = 0; i < items.length; ++i) {
@@ -1513,7 +1534,7 @@ Tips や トリック
      }
      return '<div class="foo">' + html.join(', ') + '</div>';
    }
-   
+
 配列を stringbuilder として使い, ``myArray.join('')`` で文字列に変換することも可能です. また ``push()`` で配列の要素を追加するよりもインデックスを指定して追加する方が高速なので, そちらを用いるべきです.
 
 ノードリストのイテレート
@@ -1522,6 +1543,7 @@ Tips や トリック
 
 .. code-block:: javascript
 
+   __badcode__
    var paragraphs = document.getElementsByTagName('p');
    for (var i = 0; i < paragraphs.length; i++) {
      doSomething(paragraphs[i]);
