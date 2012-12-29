@@ -13,7 +13,7 @@ Google JavaScript Style Guide 和訳
 
 バージョン
 ========================================
-Revision 2.28
+Revision 2.64
 
 著者
 ========================================
@@ -40,36 +40,53 @@ var
 
 定数
 ----------------------------------------
-定数は ``NAMES_LIKE_THIS`` のように名づけます. 適切な場面で ``@const`` を使います. ``const`` キーワードは使うべきではありません.
 
-プリミティブ値の定数の場合, 以下のようにします.
+- 定数 (constant values) は ``NAMES_LIKE_THIS`` のように名づけます.
+- ``@const`` を定数ポインタ (constant pointers, overwrite できない変数やプロパティ) に使います.
+- Internet Explorer でサポートされていないので ``const`` キーワードは使うべきではありません.
+
+定数 (Constant values)
+*****************************************
+
+一定で不変であることを意図した値には ``CONSTANT_VALUE_CASE`` のように定数としての名前をつけます. 加えて, すべてを大文字にし単語をアンダースコアで区切るようにすることは ``@const`` (その値は overwrite できない) という意味にもなります..
+
+プリミティブ型 (``number``, ``string``, ``boolean``) は定数です.
+
+オブジェクトの不変性はより主観的です. オブジェクトは観測できる状態変化がない場合のみ不変であるとみなされます. これはコンパイラによって強制されません.
+
+定数ポインタ (Constant pointers, 変数とプロパティ)
+**********************************************************************************
+
+変数やプロパティへの ``@const`` アノテーションはそれが overwrite できないことを示します. これはビルド時にコンパイラによって強制されます. この挙動は ``const`` キーワードと一貫性があるものです. (ただし Internet Explorer がサポートしていないので使用してはいけません.)
+
+メソッドへの ``@const`` アノテーションはサブクラスからオーバーライドすべきでないということも示します.
+
+例
+*****************************************
+
+``CONSTANT_VALUE_CASE`` という名前にした場合 ``@const`` は必須ではありません. ``CONSTANT_VALUE_CONSTANT`` という名前を付けることで ``@const`` であるという意味にもなります.
 
 .. code-block:: javascript
 
    /**
-    * The number of seconds in a minute.
+    * Request timeout in milliseconds.
     * @type {number}
     */
-   goog.example.SECONDS_IN_A_MINUTE = 60;
+   goog.example.TIMEOUT_IN_MILLISECONDS = 60;
 
-プリミティブ値でない定数の場合は ``@const`` アノテーションを使います.
+``TIMEOUT_IN_MILLISECONDS`` は定数なので変更されることはありません. ``ALL_CAPS`` という記法なので ``@const`` であることにもなります. よって overwrite もされません.
+
+``@const`` がついていないので, オープンソースのコンパイラの中には overwrite を許すものもあります.
 
 .. code-block:: javascript
 
    /**
-    * The number of seconds in each of the given units.
-    * @type {Object.<number>}
+    * Map of URL to response string.
     * @const
     */
-   goog.example.SECONDS_TABLE = {
-     minute: 60,
-     hour: 60 * 60
-     day: 60 * 60 * 24
-   }
+   MyClass.fetchedUrlCache_ = new goog.structs.Map();
 
-この記法を用いることで, 変数を定数として扱うようにコンパイラに伝えることができます.
-
-``const`` キーワードは Internet Explorer が認識しないため, 使うべきではありません.
+このケースでは, overwrite をすることはできませんが, 値は定数でなく変更可能です. (``ALL_CAPS`` ではなくキャメルケースなため)
 
 セミコロン
 ----------------------------------------
@@ -119,6 +136,21 @@ var
 JavaScript は, 安全にセミコロンの存在が推測できる場合を除いて, 文の最後にセミコロンを要求します. 上記の例では関数宣言やオブジェクトや配列リテラルが文の中にあります. 閉じ括弧は文の終わりを表現するものではありません. 次のトークンが()演算子などの場合, JavaScript はそれを前の文の続きとみなしてしまいます.
 
 これらの挙動は本当にプログラマを驚かせてしまいます. よってセミコロンを徹底すべきです.
+
+解説: セミコロンと関数
+****************************************
+
+セミコロンは関数式の後ろには必須ですが, 関数宣言には不要です. 以下の例で違いを示します:
+
+.. code-block:: javascript
+
+   var foo = function() {
+     return true;
+   };  // semicolon here.
+   
+   function foo() {
+     return true;
+   }  // no semicolon here.
 
 ネストした関数
 ----------------------------------------
@@ -216,17 +248,58 @@ JavaScript は, 安全にセミコロンの存在が推測できる場合を除�
      ...
    };
 
-メソッドの宣言
+メソッドとプロパティの定義
 ----------------------------------------
-``Foo.prototype.bar = function() { ... };``
 
-メソッドやプロパティをコンストラクタに付与する方法はいくつかありますが, 次の方法を使用してください:
+.. code-block:: javascript
+
+   /** @constructor */
+   function SomeConstructor() {
+     this.someProperty = 1;
+   }
+   Foo.prototype.someMethod = function() { ... };
+
+メソッドやプロパティを ``new`` を使ってオブジェクトに付与する方法はいくつかありますが, 推奨されるのは次の方法です:
 
 .. code-block:: javascript
 
    Foo.prototype.bar = function() {
      /* ... */
    };
+
+またコンストラクタの中でフィールドを初期化するのも推奨されます.
+
+.. code-block:: javascript
+
+   /** @constructor */
+   function Foo() {
+     this.bar = value;
+   }
+
+なぜ
+****************************************
+現在の JavaScript エンジンはオブジェクトの "形状" に応じて最適化を行います. `オブジェクトにプロパティを追加すること (プロトタイプで値をオーバーライドすることも含む) はパフォーマンスの低下につながります <https://developers.google.com/v8/design#prop_access>`_.
+
+delete
+----------------------------------------
+``this.foo = null`` というスタイルが推奨されます.
+
+.. code-block:: javascript
+
+   Foo.prototype.dispose = function() {
+     this.property_ = null;
+   };
+
+以下のような書き方の代わりに ``null`` を代入する方式にしてください:
+
+.. code-block:: javascript
+
+   __badcode__
+   Foo.prototype.dispose = function() {
+     delete this.property_;
+   };
+
+近年の JavaScript エンジンではオブジェクトのプロパティ数の変更は値の再代入よりもパフォーマンスが低下します. delete キーワードは本当に必要な場合, オブジェクトの keys のリストからそのプロパティを削除したい場合や ``if (key in obj)`` の結果を変えたい場合など, 以外には使用しないでください.
 
 クロージャ
 ----------------------------------------
@@ -493,7 +566,16 @@ JavaScript Style Rules
 
 命名
 ----------------------------------------
-基本的に次のように命名してください: ``functionNamesLikeThis, variableNamesLikeThis, ClassNamesLikeThis, EnumNamesLikeThis, methodNamesLikeThis, and SYMBOLIC_CONSTANTS_LIKE_THIS.``
+基本的に次のように命名してください:
+
+- ``functionNamesLikeThis``
+- ``variableNamesLikeThis``
+- ``ClassNamesLikeThis``
+- ``EnumNamesLikeThis``
+- ``methodNamesLikeThis``
+- ``CONSTANT_VALUES_LIKE_THIS``
+- ``foo.namespaceNamesLikeThis.bar``
+- ``filenameslikethis.js``
 
 プロパティとメソッド
 ****************************************
@@ -572,7 +654,7 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
    /**
     * 間違い -- 絶対にこのようにはしないでください.
     * @constructor
-    * @extend {foo.hats.RoundHat}
+    * @extends {foo.hats.RoundHat}
     */
    foo.hats.BowlerHat = function() {
    };
@@ -832,6 +914,45 @@ identifer が長い場合, プロパティを整列させると問題を引き�
          return item.name;
        });
 
+goog.scope を用いたエイリアス
+********************************************************************************
+`Closure Library <http://code.google.com/closure/library/>`_ を使用している場合, `goog.scope <https://docs.google.com/document/pub?id=1ETFAuh2kaXMVL-vafUYhaWlhl6b5D9TOvboVg7Zl68Y>`_ で名前空間分けされたシンボルへの参照を短くすることができます.
+
+ファイルごとの ``goog.scope`` の呼び出しは 1 回までです. またそれをグローバルスコープで行う必要があります.
+
+``goog.scope(function() {`` という開始行の後に続くのは一行の空行と ``goog.provide``, ``goog.require`` またはトップレベルコメントである必要があります. ``goog.scope`` 呼び出しの終了はファイルの末尾にしてください. スコープを閉じたところに ``// goog.scop`` というコメントを追加してください. このコメントはセミコロンから 2 スペースあけて追加します.
+
+C++ と同じように ``goog.scop`` の定義の中ではインデントする必要はありません. 0 行目から書き始めてください.
+
+他のオブジェクトを再代入されないもの (多くのコンストラクタ, enum, 名前空間など) のみ名前をエイリアスしてください. 次のようにはしないでください:
+
+.. code-block:: javascript
+
+   __badcode__
+   goog.scope(function() {
+   var Button = goog.ui.Button;
+   
+   Button = function() { ... };
+   ...
+
+エイリアス名はその対象のグローバルでの最後のプロパティ名と同じにしてください
+
+.. code-block:: javascript
+
+   goog.provide('my.module');
+   
+   goog.require('goog.dom');
+   goog.require('goog.ui.Button');
+   
+   goog.scope(function() {
+   var Button = goog.ui.Button;
+   var dom = goog.dom;
+   var module = my.module;
+   
+   module.button = new Button(dom.$('my-button'));
+   ...
+   });  // goog.scope
+
 More Information
 ********************************************************************************
 配列・オブジェクトの初期化と引数としての無名関数以外では, すべて文の左端にあわせるか, 左からスペース4つのインデントにします.
@@ -878,7 +999,7 @@ More Information
 
 2項・3項演算子
 ********************************************************************************
-演算子は常に先行する行においてください. そうしないと暗黙のセミコロンの問題が発生します. 改行を入れる場合は上記のルールにのっとってインデントします.
+演算子は常に先行する行においてください. そうしないと暗黙のセミコロンの問題が発生します. 改行とインデントは他の Google Style Guide と同様の規約に従ってください.
 
 .. code-block:: javascript
 
@@ -893,13 +1014,21 @@ More Information
            moreComplicatedB :
            moreComplicatedC;
 
+ドット演算子の場合の例.
+
+.. code-block:: javascript
+
+   var x = foo.bar().
+       doSomething().
+       doSomethingElse();
+
 丸括弧
 ----------------------------------------
 必要なところだけで使います.
 
 構文上・ 意味上不可欠な場面以外では, 丸括弧を使わないようにします.
 
-単項演算子 (delete, typeof) や void に丸括弧を使用してはいけません. また return や throw, case, new などのあとにも付けません.
+単項演算子 (``delete``, ``typeof``) や ``void`` に丸括弧を使用してはいけません. また ``return`` や ``throw``, ``case``, ``new`` などのあとにも付けません.
 
 文字列
 ----------------------------------------
@@ -955,20 +1084,25 @@ JSDoc の ``@private``, ``@protected`` アノテーションが推奨されま�
    // File 1.
    
    /** @constructor */
-     AA_PublicClass = function() {
+   AA_PublicClass = function() {
+     /** @private */
+     this.privateProp_ = 2;
+   
+     /** @protected */
+     this.protectedProp = 4;
    };
    
    /** @private */
    AA_PublicClass.staticPrivateProp_ = 1;
    
-   /** @private */
-   AA_PublicClass.prototype.privateProp_ = 2;
-   
    /** @protected */
    AA_PublicClass.staticProtectedProp = 31;
    
+   /** @private */
+   AA_PublicClass.prototype.privateMethod_ = function() {};
+   
    /** @protected */
-   AA_PublicClass.prototype.protectedProp = 4;
+   AA_PublicClass.prototype.protectedMethod = function() {};
    
    // File 2.
    
@@ -1006,13 +1140,13 @@ JavaScript の型
 ----------------------------------------
 コンパイラによって強制されます.
 
-JSDoc で型についてドキュメント化するときはできるだけ型を特定し正確にしてください. サポートしているのは `JS2 <http://wiki.ecmascript.org/doku.php?id=spec:spec>`_ と JS1.x の型です.
+JSDoc で型についてドキュメント化するときはできるだけ型を特定し正確にしてください. サポートしているのは `EcmaScript4 <http://wiki.ecmascript.org/doku.php?id=spec:spec>`_ です.
 
 JavaScript 型指定言語
 ********************************************************************************
-JS2 のプロポーサルには JavaScript の型を指定するための言語が記述されています. この言語を使って JSDoc のドキュメントに関数パラメータや返り値の型を記述します.
+ES4 のプロポーサルには JavaScript の型を指定するための言語が記述されています. この言語を使って JSDoc のドキュメントに関数パラメータや返り値の型を記述します.
 
-JS2 のプロポーサルの発展によって, 記法にも変化がありました. コンパイラは古い記法をサポートしていますがそれらは非推奨です.
+ES4 のプロポーサルの発展によって, 記法にも変化がありました. コンパイラは古い記法をサポートしていますがそれらは非推奨です.
 
 .. note:: 訳注
 
@@ -1175,7 +1309,7 @@ JSDoc を使用してください.
 
 `C++ style for comments <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Comments>`_ に基本的に従います.
 
-すべてのファイル, クラス, メソッド, プロパティを `JSDoc <http://code.google.com/p/jsdoc-toolkit/>`_ コメントでドキュメンテーションしてください.
+すべてのファイル, クラス, メソッド, プロパティを `JSDoc <http://code.google.com/p/jsdoc-toolkit/>`_ コメントでドキュメンテーションしてください. その際適切なタグ, 型を使用してください.
 
 インラインコメントには ``//`` を使用してください.
 
@@ -1267,12 +1401,10 @@ JavaDoc のように JSDoc でも ``<code>``, ``<pre>``, ``<tt>``, ``<strong>``,
 
 トップレベル・ファイルレベルコメント
 ********************************************************************************
-トップレベルコメントはそのコードに詳しくない読者を対象として, そのファイルが何をしているのかを説明するコメントです. ファイルの内容, 作者, コンパチビリティの情報などを記述します.
+`コピーライト <http://google-styleguide.googlecode.com/svn/trunk/copyright.html>`_ と作者の情報は必須ではありません. トップレベルコメントはそのコードに詳しくない読者を対象として, そのファイルが何をしているのかを説明するコメントです. ファイルの内容, 互換性の情報などを記述します.
 
 .. code-block:: javascript
 
-   // Copyright 2009 Google Inc. All Rights Reserved.
-   
    /**
     * @fileoverview ファイルの説明, 使用方法や
     * 依存関係の情報など.
@@ -1281,7 +1413,7 @@ JavaDoc のように JSDoc でも ``<code>``, ``<pre>``, ``<tt>``, ``<strong>``,
 
 クラスコメント
 ********************************************************************************
-クラスコメントには説明と型情報を記述します.
+クラスコメントには説明とコンストラクタを示す型情報を記述します.
 
 .. code-block:: javascript
 
@@ -1299,7 +1431,7 @@ JavaDoc のように JSDoc でも ``<code>``, ``<pre>``, ``<tt>``, ``<strong>``,
 
 メソッド・関数コメント
 ********************************************************************************
-パラメータの説明を必ず記述します. メソッドの説明文は, 第三者が宣言している文体で書きます.
+パラメータと戻り値のドキュメントを必ず記述します. メソッドの説明はパラメータと戻り値から明らかな場合は省略できます. メソッドの説明文は第三者が宣言している文体で書きます.
 
 .. code-block:: javascript
 
@@ -1313,18 +1445,19 @@ JavaDoc のように JSDoc でも ``<code>``, ``<pre>``, ``<tt>``, ``<strong>``,
      // ...
    }
 
-パラメータのないシンプルな getter メソッドの場合は説明を省略できます.
-
 プロパティコメント
 ********************************************************************************
 
 .. code-block:: javascript
 
-   /**
-    * 1 pane ごとの最大数.
-    * @type {number}
-    */
-   project.MyClass.prototype.someProperty = 4;
+   /** @constructor */
+   project.MyClass = function() {
+     /**
+      * 1 pane ごとの最大数.
+      * @type {number}
+      */
+     this.someProperty = 4;
+   }
 
 JSDoc タグリファレンス
 ********************************************************************************
@@ -1334,15 +1467,40 @@ JSDoc タグリファレンス
 
    http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml?showone=Comments#Comments
 
-インナークラスと Enum
+goog.provide での依存の提供
 ----------------------------------------
-トップレベルクラスと同じファイルに定義します.
+トップレベルのシンボルのみを提供します.
 
-別のクラスに定義されるインナークラスと enum はトップレベルクラスと同じファイルに定義してください. ``goog.provide`` 宣言はトップレベルクラスにのみ必要です.
+クラスのすべてのメンバは同じクラスにあるべきです. そのためトップレベルのクラスのみを提供してください. 中でメンバとして定義されている enum やインナークラスは提供しないでください.
+
+このようにしてください:
+
+.. code-block:: javascript
+
+   goog.provide('namespace.MyClass');
+
+このようにはしないでください:
+
+.. code-block:: javascript
+
+   goog.provide('namespace.MyClass');
+   goog.provide('namespace.MyClass.Enum');
+   goog.provide('namespace.MyClass.InnerClass');
+   goog.provide('namespace.MyClass.TypeDef');
+   goog.provide('namespace.MyClass.CONSTANT');
+   goog.provide('namespace.MyClass.staticMethod');
+
+名前空間の中のメンバも提供できます.
+
+.. code-block:: javascript
+
+   goog.provide('foo.bar');
+   goog.provide('foo.bar.method');
+   goog.provide('foo.bar.CONSTANT');
 
 コンパイル
 ----------------------------------------
-`Closure Compiler <http://code.google.com/closure/compiler/>`_ のような JavaScript コンパイラを使うことが推奨されています.
+顧客が接するコードには `Closure Compiler <http://code.google.com/closure/compiler/>`_ のような JavaScript コンパイラを使うことが必要です.
 
 Tips や トリック
 ----------------------------------------
@@ -1503,39 +1661,6 @@ Tips や トリック
 
    __badcode__
    node && node.kids && node.kids[index] && foo(node.kids[index]);
-
-文字列の組み立てに join() を使う
-********************************************************************************
-このようなコードはよく見かけられます:
-
-.. code-block:: javascript
-
-   __badcode__
-   function listHtml(items) {
-     var html = '<div class="foo">';
-     for (var i = 0; i < items.length; ++i) {
-       if (i > 0) {
-         html += ', ';
-       }
-       html += itemHtml(items[i]);
-     }
-     html += '</div>';
-     return html;
-   }
-
-しかしこの書き方は Internet Explorer では遅くなります. 次の書き方がベターです:
-
-.. code-block:: javascript
-
-   function listHtml(items) {
-     var html = [];
-     for (var i = 0; i < items.length; ++i) {
-       html[i] = itemHtml(items[i]);
-     }
-     return '<div class="foo">' + html.join(', ') + '</div>';
-   }
-
-配列を stringbuilder として使い, ``myArray.join('')`` で文字列に変換することも可能です. また ``push()`` で配列の要素を追加するよりもインデックスを指定して追加するほうが高速なので, そちらを用いるべきです.
 
 ノードリストのイテレート
 ********************************************************************************
