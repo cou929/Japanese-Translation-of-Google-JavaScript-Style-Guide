@@ -702,7 +702,7 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
      staticHelper(new MyClass());
    };
 
-名前空間のローカルなエイリアスは作成しないでください. `goog.scope <#goog-scope>`_ によってのみ, 名前空間のエイリアスを作成すべきです.
+名前空間のローカルなエイリアスは作成しないでください. ``goog.scope`` によってのみ, 名前空間のエイリアスを作成すべきです.
 
 .. code-block:: javascript
 
