@@ -1,5 +1,19 @@
 language: python
 python:
-  - "2.7"
-install: "pip install -q -r requirements.txt"
+- '2.7'
+install: pip install -q -r requirements.txt
 script: sphinx-build -nW -b html -d _build/doctrees . _build/html
+deploy:
+  provider: s3
+  access_key_id:
+    secure: QqberBpUnHrR1+OLdIN5u/+DFp7f5fNKmeK9C0bWCbxkim5qp3NNFmBIWUNAAWFTpYCLGQMx6toLMMBubKN7LihzbLdI7PWjqauf0MULIz2HB6gAMS+1n35hTrd9vwTVlR04ABC6g+aoHjwRvJnqWBgI0A5mLj0My7v6pgO1VZE=
+  secret_access_key:
+    secure: cYnnOzZ1JQurwcjqF5kKC4/Iy+szAcFuNNvTDm5y/0NkLuChZ5pd8LfJKgUxLb9FtfTaSEBtTcE6D+z5keH2pVoiQ5St6qByNbTEeGa1i4U9uJwdTpB4WoLQKu6q5lveXmtxVXenr9QVVulJ0RmTn8XBdmWKjHDsInBeSBmbluU=
+  bucket: "cou929.nu"
+  skip_cleanup: true
+  region: s3-ap-northeast-1
+  endpoint: s3-ap-northeast-1.amazonaws.com
+  on:
+    tags: true
+  local-dir: "_build/html/"
+  upload-dir: tmp
