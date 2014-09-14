@@ -15,4 +15,4 @@ deploy:
   endpoint: cou929.nu.s3-website-ap-northeast-1.amazonaws.com
   region: ap-northeast-1
   local-dir: _build/html/
-  upload-dir: tmp
+  upload-dir: data/google_javascript_style_guide
