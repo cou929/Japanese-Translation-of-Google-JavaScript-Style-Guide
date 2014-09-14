@@ -8,10 +8,10 @@ deploy:
   access_key_id:
     secure: QqberBpUnHrR1+OLdIN5u/+DFp7f5fNKmeK9C0bWCbxkim5qp3NNFmBIWUNAAWFTpYCLGQMx6toLMMBubKN7LihzbLdI7PWjqauf0MULIz2HB6gAMS+1n35hTrd9vwTVlR04ABC6g+aoHjwRvJnqWBgI0A5mLj0My7v6pgO1VZE=
   secret_access_key:
-    secure: cYnnOzZ1JQurwcjqF5kKC4/Iy+szAcFuNNvTDm5y/0NkLuChZ5pd8LfJKgUxLb9FtfTaSEBtTcE6D+z5keH2pVoiQ5St6qByNbTEeGa1i4U9uJwdTpB4WoLQKu6q5lveXmtxVXenr9QVVulJ0RmTn8XBdmWKjHDsInBeSBmbluU=
-  bucket: "cou929.nu"
+    secure: cHWM4Ana/draQizFu8qttZvsA3Ik65pVP6Dj9SN0CJaiiE8Qy6FDnUIiA3suZ6t0sMvjgDlXD/WXLjxV1QIQ9OP3o3lnKVZ9/MOOIP0Uo/H6arBE8TjcVZHAcevbtz/NTq+AeK3kBBgz6ZTQJuR4FvlbfVkXcahdd+SYGODbKoQ=
+  bucket: cou929.nu
   skip_cleanup: true
   region: s3-ap-northeast-1
   endpoint: s3-ap-northeast-1.amazonaws.com
-  local-dir: "_build/html/"
+  local-dir: _build/html/
   upload-dir: tmp
