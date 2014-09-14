@@ -1,17 +1,17 @@
 # Unoficial Japanese translation of Google JavaScript Style Guilde
 
+[![Build Status](https://travis-ci.org/cou929/Japanese-Translation-of-Google-JavaScript-Style-Guide.svg?branch=master)](https://travis-ci.org/cou929/Japanese-Translation-of-Google-JavaScript-Style-Guide)
+
 Unoficial Japanese translation of [Google JavaScript Style Guilde](http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml).
 
 [The translation](http://cou929.nu/data/google_javascript_style_guide/)
 
 ## Build document
 
-    $ sh tools/doc_builder.sh
+    $ make html
 
 ## Tools
 
-- tools/doc_builder.sh
-  - Build document and put html to www dir. Support `__badcode__` anotation.
 - tools/monitor.sample.sh
   - Sample one liner to monitor changes of original Google JavaScript Style Guide Document. You can set this up to crontab.
 - tools/notation_checker.py
