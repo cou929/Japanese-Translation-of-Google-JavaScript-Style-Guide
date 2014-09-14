@@ -13,7 +13,7 @@ Google JavaScript Style Guide 和訳
 
 バージョン
 ========================================
-Revision 2.64
+Revision 2.72
 
 著者
 ========================================
@@ -21,7 +21,7 @@ Revision 2.64
 * Aaron Whyte
 * Bob Jervis
 * Dan Pupius
-* Eric Arvidsson
+* Erik Arvidsson
 * Fritz Schneider
 * Robby Walker
 
@@ -580,8 +580,8 @@ JavaScript Style Rules
 プロパティとメソッド
 ****************************************
 
-- ``Private`` のプロパティ, 変数, メソッドには, 末尾にアンダースコア ``_`` を付けてください.
-- ``Protected`` のプロパティ, 変数, メソッドにはアンダースコアを付けないでください (パブリックなものと同様です).
+- ``Private`` のプロパティ, メソッドには, 末尾にアンダースコア ``_`` を付けてください.
+- ``Protected`` のプロパティ, メソッドにはアンダースコアを付けないでください (パブリックなものと同様です).
 
 ``Private`` と ``Protected`` に関しては visibility のセクションを参考にしてください.
 
@@ -702,7 +702,7 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
      staticHelper(new MyClass());
    };
 
-名前空間のエイリアスは作成しないでください.
+名前空間のローカルなエイリアスは作成しないでください. `goog.scope <#goog-scope>`_ によってのみ, 名前空間のエイリアスを作成すべきです.
 
 .. code-block:: javascript
 
@@ -795,7 +795,7 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
    var arr = [1, 2, 3];  // 括弧の前後に空白を入れないでください
    var obj = {a: 1, b: 2, c: 3};  // 括弧の前後に空白を入れないでください
 
-複数行に渡る初期化の場合は, 普通のブロック同様スペース2つのインデントを行ってください.
+複数行に渡る初期化の場合は, 普通のブロック同様スペース2つのインデントを行い, かつ括弧だけで一行を使ってください.
 
 .. code-block:: javascript
 
@@ -1194,7 +1194,7 @@ JavaScript は弱い型付けの言語なので, 関数の引数やクラスの�
      this.myValue_ = value;
    }
 
-このコードではコンパイラに ``myValue_`` プロパティはオブジェクトか null をとるように指定しています. もし ``myValue_`` が null を取りえなくする場合は次のようにします。
+このコードではコンパイラに ``myValue_`` プロパティはオブジェクトか null をとるように指定しています. もし ``myValue_`` が null を取りえなくする場合は次のようにします.
 
 .. code-block:: javascript
 
@@ -1309,7 +1309,7 @@ JSDoc を使用してください.
 
 `C++ style for comments <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Comments>`_ に基本的に従います.
 
-すべてのファイル, クラス, メソッド, プロパティを `JSDoc <http://code.google.com/p/jsdoc-toolkit/>`_ コメントでドキュメンテーションしてください. その際適切なタグ, 型を使用してください.
+すべてのファイル, クラス, メソッド, プロパティを `JSDoc <http://code.google.com/p/jsdoc-toolkit/>`_ コメントでドキュメンテーションしてください. その際適切なタグ, 型を使用してください. 名前から自明でない場合は, メソッドや引数, 返り値の説明文を記載すべきです.
 
 インラインコメントには ``//`` を使用してください.
 
