@@ -13,7 +13,7 @@ Google JavaScript Style Guide 和訳
 
 バージョン
 ========================================
-Revision 2.72
+Revision 2.93
 
 著者
 ========================================
@@ -57,9 +57,11 @@ var
 定数ポインタ (Constant pointers, 変数とプロパティ)
 **********************************************************************************
 
-変数やプロパティへの ``@const`` アノテーションはそれが overwrite できないことを示します. これはビルド時にコンパイラによって強制されます. この挙動は ``const`` キーワードと一貫性があるものです. (ただし Internet Explorer がサポートしていないので使用してはいけません.)
+変数やプロパティへの ``@const`` アノテーションはそれが overwrite できないことを示します. これはビルド時にコンパイラによって強制されます. この挙動は `const <https://developer.mozilla.org/en/JavaScript/Reference/Statements/const>`_ キーワードと一貫性があるものです. (ただし Internet Explorer がサポートしていないので使用していません.)
 
-メソッドへの ``@const`` アノテーションはサブクラスからオーバーライドすべきでないということも示します.
+メソッドへの ``@const`` アノテーションはサブクラスからオーバーライドできないということも示します.
+
+コンストラクタの ``@const`` アノテーションはサブクラスを作成できないということを示します. (Java の ``final`` と類似です. )
 
 例
 *****************************************
@@ -86,6 +88,15 @@ var
     */
    MyClass.fetchedUrlCache_ = new goog.structs.Map();
 
+.. code-block:: javascript
+
+  /**
+    * サブクラスを作成できないクラス
+    * @const
+    * @constructor
+  */
+  sloth.MyFinalClass = function() {};
+
 このケースでは, overwrite をすることはできませんが, 値は定数でなく変更可能です. (``ALL_CAPS`` ではなくキャメルケースなため)
 
 セミコロン
@@ -103,24 +114,24 @@ var
    MyClass.prototype.myMethod = function() {
      return 42;
    }  // ここにセミコロンがない
-   
+
    (function() {
      // この一時的なブロックスコープで初期化処理などを行う
    })();
-   
-   
+
+
    var x = {
      'i': 1,
      'j': 2
    }  // セミコロンがない
-   
+
    // 2. Internet Explorer や FireFox のために以下のようなコードを書く
    // 普通はこんな書き方はしないけど, 例なので
-   [normalVersion, ffVersion][isIE]();
-   
-   
+   [ffVersion, ieVersion][isIE]();
+
+
    var THINGS_TO_EAT = [apples, oysters, sprayOnCheese]  // セミコロンがない
-   
+
    // 3. bash 風な条件文
    -1 == resultOfOperation() || die();
 
@@ -128,8 +139,8 @@ var
 ****************************************
 
 1. JavaScript Error: はじめの 42 を返している無名関数が, 2つ目の関数を引数にとって実行されてしまい, 42 を関数として呼び出そうとしてエラーになる.
-2. おそらく実行時に 'no such property in undefined' エラーとなる. x[ffVersion][isIE]() と解釈されてしまうため.
-3. resultOfOperation() が NaN でない限り die がコールされ, THINGS_TO_EAT に die() の結果が代入される.
+2. おそらく実行時に 'no such property in undefined' エラーとなる. x[ffVersion, ieVersion][isIE]() と解釈されてしまうため.
+3. 常に ``die()`` が呼び出される. なぜなら ``配列 - 1`` は常に ``NaN`` で, (``resultOfOperation()`` が ``NaN`` を返したとしても) イコールになることがないため. そして ``THINGS_TO_EAT`` に ``die()`` の結果が代入される.
 
 なぜ
 ****************************************
@@ -147,7 +158,7 @@ JavaScript は, 安全にセミコロンの存在が推測できる場合を除�
    var foo = function() {
      return true;
    };  // semicolon here.
-   
+
    function foo() {
      return true;
    }  // no semicolon here.
@@ -174,7 +185,7 @@ JavaScript は, 安全にセミコロンの存在が推測できる場合を除�
 .. code-block:: javascript
 
    if (x) {
-     var foo = function() {}
+     var foo = function() {};
    }
 
 例外
@@ -235,7 +246,7 @@ JavaScript は, 安全にセミコロンの存在が推測できる場合を除�
 
 多層のプロトタイプヒエラルキー(Multi-level prototype hierarchies) は JavaScript が継承を実装している方法です. ユーザー定義クラスDがプロトタイプとしてユーザー定義クラスBを持っている場合, 多層のヒエラルキーになります. こうしたヒエラルキーは理解するのが難しくなります.
 
-よって同様のことを実現したい場合は, `Closure Library <http://code.google.com/closure/library/>`_ の ``goog.inherits()`` を使うべきです.
+よって同様のことを実現したい場合は, `Closure Library <http://code.google.com/closure/library/>`_ の ``goog.inherits()`` や類似のライブラリ関数を使うべきです.
 
 .. code-block:: javascript
 
@@ -243,7 +254,7 @@ JavaScript は, 安全にセミコロンの存在が推測できる場合を除�
      goog.base(this)
    }
    goog.inherits(D, B);
-   
+
    D.prototype.method = function() {
      ...
    };
@@ -323,52 +334,42 @@ delete
    function foo(element, a, b) {
      element.onclick = bar(a, b);
    }
-   
+
    function bar(a, b) {
-     return function() { /* 引数 a と b を使う */ }
+     return function() { /* 引数 a と b を使う */ };
    }
 
 eval()
 ----------------------------------------
-デシリアライズ (deserialization) するときのみ使用可. (例えば RPC レスポンスを評価するときなど)
+Code loader か REPL (Read–eval–print loop) を実装するときのみ使用可.
 
-``eval()`` はセマンティクスを混乱させやすいし, ユーザーインプットを ``eval()`` したものは危険です. 通常はもっとクリアで安全な代替手段が存在するので, 大抵の場合には ``eval()`` は使用すべきではありません. しかし ``eval`` をデシリアライズ (deserialization) に使う場合は, 代替手段よりも ``eval`` のほうが便利です. (例えば RPC レスポンスを評価するときなど)
+``eval()`` はセマンティクスを混乱させやすいし, ユーザーインプットを ``eval()`` したものは危険です. 通常はもっとクリアで安全な代替手段が存在するので, 大抵の場合には ``eval()`` は使用すべきではありません.
+JSON RPC の場合には, ``eval()`` ではなく ``JSON.parse()`` で結果を読み取ることができます.
 
-Deserialization とはバイト列をメモリ上のデータ構造に変換する処理です. 例えば, 以下のようなオブジェクトがファイルに書き出してあったとします:
-
-.. code-block:: javascript
-
-   users = [
-     {
-       name: 'Eric',
-       id: 37824,
-       email: 'jellyvore@myway.com'
-     },
-     {
-       name: 'xtof',
-       id: 31337,
-       email: 'b4d455h4x0r@google.com'
-     },
-     ...
-   ];
-
-単にこの文字列を ``eval`` するだけで, このデータをメモリに移すことができます.
-
-また, ``eval()`` によって RPC のレスポンスを簡単にデコードできます. 例えば ``XMLHttpRequest`` を使って RPC の呼び出しを行い, サーバは JavaScript を返す場合はこのようになります:
+例えば, このようなものを返すサーバがあったとします:
 
 .. code-block:: javascript
 
-   var userOnline = false;
-   var user = 'nusrat';
-   var xmlhttp = new XMLHttpRequest();
-   xmlhttp.open('GET', 'http://chat.google.com/isUserOnline?user=' + user, false);
-   xmlhttp.send('');
-   // サーバは以下のようなコードを返す:
-   // userOnline = true;
-   if (xmlhttp.status == 200) {
-     eval(xmlhttp.responseText);
-   }
-   // userOnline は現在 true になる.
+   {
+     name: 'Alice',
+     id: 31502,
+     email: 'looking_glass@example.com'
+   },
+
+.. code-block:: javascript
+
+   __badcode__
+   var userInfo = eval(feed);
+   var email = userInfo['email'];
+
+もし ``feed`` に悪意のあるコードが挿入されており, ``eval()`` を使った場合は, そのコードが実行されてしまします.
+
+.. code-block:: javascript
+
+   var userInfo = JSON.parse(feed);
+   var email = userInfo['email'];
+
+``JSON.parse()`` を使うと, (実行可能な JavaScript コードも含め) 不正な JSON の場合は例外が投げられます.
 
 with() {}
 ----------------------------------------
@@ -411,15 +412,15 @@ for-in ループ
        print(arr[key]);
      }
    }
-   
+
    printArray([0,1,2,3]);  // 正しく動作.
-   
+
    var a = new Array(10);
    printArray(a);  // 正しく動かない.
-   
+
    a = document.getElementsByTagName('*');
    printArray(a);  // 正しく動かない.
-   
+
    a = [0,1,2,3];
    a.buhu = 'wine';
    printArray(a);  // 正しく動かない.
@@ -491,15 +492,15 @@ for-in ループ
    __badcode__
    // 長さは 3.
    var a1 = new Array(x1, x2, x3);
-   
+
    // 長さは 2.
    var a2 = new Array(x1, x2);
-   
+
    // もし x1 が数字で, かつ自然数の場合, length は x1 になる.
    // もし x1 が数字で, かつ自然数でない場合, 例外が発生する.
    // 数字でない場合, 配列は x1 を値として持つ.
    var a3 = new Array(x1);
-   
+
    // 長さは 0.
    var a4 = new Array();
 
@@ -514,13 +515,13 @@ for-in ループ
    var a3 = [x1];
    var a4 = [];
 
-オブジェクトの場合は, コンストラクタに配列のような紛らわしさはないのですが, 可読性と一貫性のためにリテラルを使用してください. 
+オブジェクトの場合は, コンストラクタに配列のような紛らわしさはないのですが, 可読性と一貫性のためにリテラルを使用してください.
 
 .. code-block:: javascript
 
    __badcode__
    var o = new Object();
-   
+
    var o2 = new Object();
    o2.a = 0;
    o2.b = 1;
@@ -532,7 +533,7 @@ for-in ループ
 .. code-block:: javascript
 
    var o = {};
-   
+
    var o2 = {
      a: 0,
      b: 1,
@@ -623,7 +624,7 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
 .. code-block:: javascript
 
    var sloth = {};
-   
+
    sloth.sleep = function() {
      ...
    };
@@ -633,7 +634,7 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
 .. code-block:: javascript
 
    goog.provide('sloth');
-   
+
    sloth.sleep = function() {
      ...
    };
@@ -650,7 +651,7 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
 
    __badcode__
    foo.require('foo.hats');
-   
+
    /**
     * 間違い -- 絶対にこのようにはしないでください.
     * @constructor
@@ -664,9 +665,9 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
 .. code-block:: javascript
 
    foo.provide('googleyhats.BowlerHat');
-   
+
    foo.require('foo.hats');
-   
+
    /**
     * @constructor
     * @extend {foo.hats.RoundHat}
@@ -674,7 +675,7 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
    googleyhats.BowlerHat = function() {
      ...
    };
-   
+
    goog.exportSymbol('foo.hats.BowlerHat', googleyhats.BowlerHat);
 
 長い型名をエイリアスし可読性を向上させる
@@ -688,14 +689,14 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
     */
    some.long.namespace.MyClass = function() {
    };
-   
+
    /**
     * @param {some.long.namespace.MyClass} a
     */
    some.long.namespace.MyClass.staticHelper = function(a) {
      ...
    };
-   
+
    myapp.main = function() {
      var MyClass = some.long.namespace.MyClass;
      var staticHelper = some.long.namespace.MyClass.staticHelper;
@@ -722,7 +723,7 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
      APPLE: 'a',
      BANANA: 'b'
    };
-   
+
    myapp.main = function() {
      var Fruit = some.long.namespace.Fruit;
      switch (fruit) {
@@ -806,7 +807,7 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
      bottom: 15,
      left: 12
    };
-   
+
    // 配列の初期化
    this.rows_ = [
      '*Slartibartfast* <fjordmaster@magrathea.com>',
@@ -816,24 +817,24 @@ JavaScript は階層的なパッケージングや名前空間をサポートし
      '*Marvin the Paranoid Android* <marv@googlemail.com>',
      'the.mice@magrathea.com'
    ];
-   
+
    // メソッドの引数としてのオブジェクト
    goog.dom.createDom(goog.dom.TagName.DIV, {
      id: 'foo',
      className: 'some-css-class',
      style: 'display:none'
    }, 'Hello, world!');
-  
+
 identifer が長い場合, プロパティを整列させると問題を引き起こす場合があるので, 整列させないようにしてください.
 
 .. code-block:: javascript
-   
+
    CORRECT_Object.prototype = {
      a: 0,
      b: 1,
      lengthyName: 2
    };
-   
+
 以下のようにはしないでください.
 
 .. code-block:: javascript
@@ -857,7 +858,7 @@ identifer が長い場合, プロパティを整列させると問題を引き�
        tableModelEventHandlerProxy, artichokeDescriptorAdapterIterator) {
      // ...
    };
-   
+
    // 空白4つのインデント, 1引数につき1行. とても長い関数名で各引数を強調したい場合
    goog.foo.bar.doThingThatIsVeryDifficultToExplain = function(
        veryDescriptiveArgumentNumberOne,
@@ -866,14 +867,14 @@ identifer が長い場合, プロパティを整列させると問題を引き�
        artichokeDescriptorAdapterIterator) {
      // ...
    };
-   
+
    // 括弧にあわせたインデント, 80文字近くまでならべる. 引数を見やすくまとめて, スペースが少ない場合.
    function foo(veryDescriptiveArgumentNumberOne, veryDescriptiveArgumentTwo,
                 tableModelEventHandlerProxy, artichokeDescriptorAdapterIterator) {
      // ...
    }
-   
-   // 括弧にあわせたインデント, 1引数につき1行. 引数を見やすくまとめて, 各引数を強調したい場合.
+
+   // 括弧にあわせたインデント, 1引数につき1行. 各引数を強調したい場合.
    function bar(veryDescriptiveArgumentNumberOne,
                 veryDescriptiveArgumentTwo,
                 tableModelEventHandlerProxy,
@@ -907,7 +908,7 @@ identifer が長い場合, プロパティを整列させると問題を引き�
        andNowForSomethingCompletelyDifferent(a2.parrot);
      }
    });
-   
+
    var names = prefix.something.myExcellentMapFunction(
        verboselyNamedCollectionOfItems,
        function(item) {
@@ -931,7 +932,7 @@ C++ と同じように ``goog.scop`` の定義の中ではインデントする�
    __badcode__
    goog.scope(function() {
    var Button = goog.ui.Button;
-   
+
    Button = function() { ... };
    ...
 
@@ -940,22 +941,22 @@ C++ と同じように ``goog.scop`` の定義の中ではインデントする�
 .. code-block:: javascript
 
    goog.provide('my.module');
-   
+
    goog.require('goog.dom');
    goog.require('goog.ui.Button');
-   
+
    goog.scope(function() {
    var Button = goog.ui.Button;
    var dom = goog.dom;
    var module = my.module;
-   
+
    module.button = new Button(dom.$('my-button'));
    ...
    });  // goog.scope
 
-More Information
+More Indentation
 ********************************************************************************
-配列・オブジェクトの初期化と引数としての無名関数以外では, すべて文の左端にあわせるか, 左からスペース4つのインデントにします.
+配列リテラル・オブジェクトリテラルと無名関数以外は, 直前の兄弟の式の左端にあわせるか, 親の式よりもスペース4つ (2つではない) 深いインデントにします. (ここで言う兄弟・親とは括弧のネストのレベルです. )
 
 .. code-block:: javascript
 
@@ -964,19 +965,24 @@ More Information
                                        evenMoreParams, 'a duck', true, 72,
                                        slightlyMoreMonkeys(0xfff)) +
                        '';
-   
+
    thisIsAVeryLongVariableName =
        hereIsAnEvenLongerOtherFunctionNameThatWillNotFitOnPrevLine();
-   
-   thisIsAVeryLongVariableName = 'expressionPartOne' + someMethodThatIsLong() +
-       thisIsAnEvenLongerOtherFunctionNameThatCannotBeIndentedMore();
-   
+
+   thisIsAVeryLongVariableName = siblingOne + siblingTwo + siblingThree +
+       siblingFour + siblingFive + siblingSix + siblingSeven +
+       moreSiblingExpressions + allAtTheSameIndentationLevel;
+
+   thisIsAVeryLongVariableName = operandOne + operandTwo + operandThree +
+       operandFour + operandFive * (
+           aNestedChildExpression + shouldBeIndentedMore);
+
    someValue = this.foo(
        shortArg,
        '非常に長い文字列型の引数 - 実際にはこのようなケースはとてもよくあります.',
        shorty2,
        this.bar());
-   
+
    if (searchableCollection(allYourStuff).contains(theStuffYouWant) &&
        !ambientNotification.isActive() && (client.isAmbientSupported() ||
                                            client.alwaysTryAmbientAnyways())) {
@@ -992,23 +998,24 @@ More Information
    doSomethingTo(x);
    doSomethingElseTo(x);
    andThen(x);
-   
+
    nowDoSomethingWith(y);
-   
+
    andNowWith(z);
 
 2項・3項演算子
 ********************************************************************************
-演算子は常に先行する行においてください. そうしないと暗黙のセミコロンの問題が発生します. 改行とインデントは他の Google Style Guide と同様の規約に従ってください.
+演算子は常に先行する行においてください. 改行とインデントは他の Google Style Guide と同様の規約に従ってください.
+当初このルールは, セミコロンの自動挿入を考慮して定められていました. 実際には二項演算子の前にセミコロンは自動挿入されません. しかし過去のコードとの一貫性のため, 新しいコードでもこのルールに従ってください.
 
 .. code-block:: javascript
 
    var x = a ? b : c;  // 可能ならば1行に
-   
+
    // 空白4つのインデント
    var y = a ?
        longButSimpleOperandB : longButSimpleOperandC;
-   
+
    // 最初のオペランドにあわせたインデント
    var z = a ?
            moreComplicatedB :
@@ -1058,19 +1065,19 @@ JSDoc の ``@private``, ``@protected`` アノテーションが推奨されま�
 
    // File 1.
    // AA_PrivateClass_ と AA_init_ はグローバルで同じファイルからなのでアクセスできる
-   
+
    /**
     * @private
     * @constructor
     */
    AA_PrivateClass_ = function() {
    };
-   
+
    /** @private */
    function AA_init_() {
      return new AA_PrivateClass_();
    }
-   
+
    AA_init_();
 
 ``@private`` なプロパティは同じファイルのすべてのコードにアクセスできます. 加えて, そのプロパティがクラスに属していた場合, そのプロパティが含まれるクラスの静的メソッドとインスタンスメソッドにもアクセスできます. ただし, 別ファイルのサブクラスからアクセスしたり, オーバーライドすることはできません.
@@ -1082,30 +1089,30 @@ JSDoc の ``@private``, ``@protected`` アノテーションが推奨されま�
 .. code-block:: javascript
 
    // File 1.
-   
+
    /** @constructor */
    AA_PublicClass = function() {
      /** @private */
      this.privateProp_ = 2;
-   
+
      /** @protected */
      this.protectedProp = 4;
    };
-   
+
    /** @private */
    AA_PublicClass.staticPrivateProp_ = 1;
-   
+
    /** @protected */
    AA_PublicClass.staticProtectedProp = 31;
-   
+
    /** @private */
    AA_PublicClass.prototype.privateMethod_ = function() {};
-   
+
    /** @protected */
    AA_PublicClass.prototype.protectedMethod = function() {};
-   
+
    // File 2.
-   
+
    /**
     * @return {number} The number of ducks we've arranged in a row (一列にならべるアヒルの数).
     */
@@ -1113,9 +1120,9 @@ JSDoc の ``@private``, ``@protected`` アノテーションが推奨されま�
      // これら2つのプロパティへの合法的なアクセス
      return this.privateProp_ + AA_PublicClass.staticPrivateProp_;
    };
-   
+
    // File 3.
-   
+
    /**
     * @constructor
     * @extends {AA_PublicClass}
@@ -1125,7 +1132,7 @@ JSDoc の ``@private``, ``@protected`` アノテーションが推奨されま�
      AA_PublicClass.staticProtectedProp = this.method();
    };
    goog.inherits(AA_SubClass, AA_PublicClass);
-   
+
    /**
     * @return {number} The number of ducks we've arranged in a row (一列にならべるアヒルの数).
     */
@@ -1273,7 +1280,7 @@ Typedef
 
    /** @typedef {(string|Element|Text|Array.<Element>|Array.<Text>)} */
    goog.ElementContent;
-   
+
    /**
    * @param {string} tagName
    * @param {goog.ElementContent} contents
@@ -1309,11 +1316,12 @@ JSDoc を使用してください.
 
 `C++ style for comments <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Comments>`_ に基本的に従います.
 
-すべてのファイル, クラス, メソッド, プロパティを `JSDoc <http://code.google.com/p/jsdoc-toolkit/>`_ コメントでドキュメンテーションしてください. その際適切なタグ, 型を使用してください. 名前から自明でない場合は, メソッドや引数, 返り値の説明文を記載すべきです.
+すべてのファイル, クラス, メソッド, プロパティを `JSDoc <http://code.google.com/p/jsdoc-toolkit/>`_ コメントでドキュメンテーションしてください. その際適切なタグ, 型を使用してください. 名前から自明でない場合は, プロパティ, メソッド, 引数, 返り値の説明文を記載すべきです.
 
 インラインコメントには ``//`` を使用してください.
 
 文章が断片的になることは避けてください. 文頭では適切に語頭を大文字にし, 文末には句点を入れます.
+完全な文章を書くことが推奨されますが, 必須ではありません. 完全な文章を書く際は大文字, 句読点を適切に使用してください.
 
 コメントの構文
 ********************************************************************************
@@ -1344,7 +1352,7 @@ JSDoc のインデント
      return 5;
    };
 
-``@fileoverview`` のコメントはインデントしてはいけません.
+``@fileoverview`` のコメントはインデントしてはいけません. ``@desc`` コマンドをインデントする必要はありません.
 
 文章の左端でそろえる方法も可能ですが, 推奨されません. 変数名が変わったときに毎回対応する必要が出てくるためです.
 
@@ -1382,7 +1390,7 @@ JavaDoc のように JSDoc でも ``<code>``, ``<pre>``, ``<tt>``, ``<strong>``,
 .. code-block:: javascript
 
    __badcode__
-   3つの要素から重みを計算する: items sent items received items received
+   3つの要素から重みを計算する: items sent items received last timestamp
 
 代わりに以下のように記述してください.
 
@@ -1401,7 +1409,8 @@ JavaDoc のように JSDoc でも ``<code>``, ``<pre>``, ``<tt>``, ``<strong>``,
 
 トップレベル・ファイルレベルコメント
 ********************************************************************************
-`コピーライト <http://google-styleguide.googlecode.com/svn/trunk/copyright.html>`_ と作者の情報は必須ではありません. トップレベルコメントはそのコードに詳しくない読者を対象として, そのファイルが何をしているのかを説明するコメントです. ファイルの内容, 互換性の情報などを記述します.
+`コピーライト <http://google-styleguide.googlecode.com/svn/trunk/copyright.html>`_ と作者の情報は必須ではありません.
+一般的には, 2 つ以上のクラス定義があるファイルの場合は概要を記載することを推奨します. トップレベルコメントはそのコードに詳しくない読者を対象として, そのファイルが何をしているのかを説明するコメントです. ファイルの内容, 互換性の情報などを記述します.
 
 .. code-block:: javascript
 
