@@ -21,3 +21,9 @@ Unoficial Japanese translation of [Google JavaScript Style Guilde](http://google
 
 - [Sphinx](http://sphinxsearch.com/)
 - [MeCab](http://mecab.googlecode.com/svn/trunk/mecab/doc/index.html)
+
+## Deploy
+
+Keys are inactivated currently.
+You must sync _build/html manually.
+See .travis.yml
