@@ -9,7 +9,7 @@ deploy:
   access_key_id:
     secure: gLXX7f/lGZjUX4MZaEECylTEmPtErXAXTQ1Th3yfAXdRYf7Nj1UfMaHOo6jsVxwIuaS8VYXhts0LyggasgYG34Mifq4LeV4q8WsTR6CiPvoYGwgB1lnvUXmbHSAEb+jxnTYF1LFc61M+gU4h3naJqDJ1dbXP+UBPHTa4TVim/s0=
   secret_access_key:
-    secure: Q1joAA+xhdpBzIeasAFRF7SI3mGl3InaX8OEfz57NsG2YvxtpIZeJ2omLYiA7dPgdgep5t6nn4Ld2khnw3lI+XGfBFzcJlOr7hTyuzLGcViSbs1fzRERnj+zquf+n6OKuAKrAcZOEzXAV7XEJziy5dzIDSFjRrvbk4eMdtasMZ8=
+    secure: ACiSzKuI2bqJDxY62BitI5ouu9W37x3UZZN8kW7SmWviiofo4ZoJXvpXLsnvCwCMkTuFjFaJfJ8byIcUrPbgTDfbo764XClTkNWs03zRjiRrvQICNmJp7fIM/vWGkOXMPFT1ZePtd6FWPPQo1i/XxELBLAaFCBH7USYDrSbNBiI=
   bucket: cou929.nu
   skip_cleanup: true
   endpoint: cou929.nu.s3-website-ap-northeast-1.amazonaws.com
