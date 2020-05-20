@@ -7,9 +7,9 @@ before_deploy: perl -i -ple 'if (/__badcode__/) { s/(<span class="nx">)?__badcod
 deploy:
   provider: s3
   access_key_id:
-    secure: HSVCR+bCRID92I2fvQoCewbMkCIfI5tsl3K665t2cXwjkeRE0fXgLL3Z7RlFDIqyQeiGgMTB60kZ86YVeaaRtdmQ2HxMCzjdYraAw4FRhPwrmApGBWKkenmAYR1In+W8YOSJyY8YIqKw1T1rZYB8guU3PKVxDnc+wPQlBLWYK6k=
+    secure: gLXX7f/lGZjUX4MZaEECylTEmPtErXAXTQ1Th3yfAXdRYf7Nj1UfMaHOo6jsVxwIuaS8VYXhts0LyggasgYG34Mifq4LeV4q8WsTR6CiPvoYGwgB1lnvUXmbHSAEb+jxnTYF1LFc61M+gU4h3naJqDJ1dbXP+UBPHTa4TVim/s0=
   secret_access_key:
-    secure: IZzHhTekx3rHQTkaf4LpnPKH9n6hxrFMM4xNccf2BlxgvVPxBLdOrjCDESw/tpcSst9uwQTzuloKPlWbePepsQ0s+GunjWKa4vjhhC2GTVOKJcoMgiORYk/IxQPNeE2uKVHsxNgik1AgIDHyZ6YHAuyEqnmHIk8vMOyz/EsHT94=
+    secure: Q1joAA+xhdpBzIeasAFRF7SI3mGl3InaX8OEfz57NsG2YvxtpIZeJ2omLYiA7dPgdgep5t6nn4Ld2khnw3lI+XGfBFzcJlOr7hTyuzLGcViSbs1fzRERnj+zquf+n6OKuAKrAcZOEzXAV7XEJziy5dzIDSFjRrvbk4eMdtasMZ8=
   bucket: cou929.nu
   skip_cleanup: true
   endpoint: cou929.nu.s3-website-ap-northeast-1.amazonaws.com
